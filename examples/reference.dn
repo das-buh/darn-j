@@ -4,7 +4,7 @@ a_ref = &a
 b_ref = &b
 
 *a_ref = 3
-*b_ref = 4
+*b_ref = *a_ref + *b_ref + 4
 print(fmt(a))
 print(fmt(b))
 
