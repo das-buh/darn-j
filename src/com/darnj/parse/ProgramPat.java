@@ -1,6 +1,7 @@
 package com.darnj.parse;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import com.darnj.LangError;
 import com.darnj.Span;
@@ -10,21 +11,28 @@ import com.darnj.op.*;
 import com.darnj.type.*;
 
 final class ProgramPat implements Pattern {
+    private static Logger log = Logger.getGlobal();
+
     static ProgramPat instance = new ProgramPat();
 
     @Override
     public Op parse(Parser parser) {
+        log.finer("parse program");
+        
         var stmts = new ArrayList<Op>();
 
         while (true) {
-            switch (parser.peek().kind()) {
+            var term = switch (parser.peek().kind()) {
                 case TokenKind.FN -> {
                     parser.bump();
                     parseFunction(parser);
+                    yield false;
                 }
-                case TokenKind.EOF -> {
-                    return new Block(new Span(0, parser.src.length()), stmts);
+                case TokenKind.INDENT -> {
+                    parser.bump();
+                    yield false;
                 }
+                case TokenKind.EOF -> true;
                 default -> {
                     var stmt = parser.pattern(StmtPat.instance);
                     stmts.add(stmt);
@@ -35,7 +43,13 @@ final class ProgramPat implements Pattern {
                         }
                         default -> throw new LangError(parser.peek().pos(), "expected newline while parsing");
                     }
+                    yield false;
                 }
+            };
+
+            if (term) {
+                parser.expect(TokenKind.EOF, "expected end of input while parsing");
+                return new Block(new Span(0, parser.src.length()), stmts);
             }
         }
     }
@@ -50,30 +64,40 @@ final class ProgramPat implements Pattern {
             var params = new ArrayList<Param>();
             if (pInner.peek().kind() == TokenKind.PAREN_CLOSE) {
                 pInner.bump();
-            } else while (true) {
-                var param = pInner.expectIdent();
-                var type = parseType(pInner);
-                params.add(new Param(param, type));
-    
-                var delim = pInner.peek();
-                switch (delim.kind()) {
-                    case TokenKind.COMMA -> {
-                        pInner.bump();
-                        continue;
+            } else {
+                while (true) {
+                    var paramPos = pInner.peek().pos();
+                    var param = pInner.expectIdent();
+
+                    if (params.stream().anyMatch(p -> p.ident() == param)) {
+                        var format = "parameter `%s` is already defined";
+                        throw new LangError(paramPos, String.format(format, pInner.ctx.symbols().resolve(param)));
                     }
-                    case TokenKind.PAREN_CLOSE -> {
-                        pInner.bump();
+
+                    var type = parseType(pInner);
+                    params.add(new Param(param, type));
+        
+                    var delim = pInner.peek();
+                    var term = switch (delim.kind()) {
+                        case TokenKind.COMMA -> {
+                            pInner.bump();
+                            yield false;
+                        }
+                        case TokenKind.PAREN_CLOSE -> {
+                            pInner.bump();
+                            yield true;
+                        }
+                        default -> throw new LangError(delim.pos(), "expected closing parenthesis while parsing");
+                    };
+
+                    if (term) {
                         break;
                     }
-                    default -> throw new LangError(delim.pos(), "expected closing parenthesis while parsing");
                 }
-            };
+            }
 
             var returnType = switch (pInner.peek().kind()) {
-                case TokenKind.DO -> {
-                    pInner.bump();
-                    yield UndefinedType.instance();
-                }
+                case TokenKind.DO -> UndefinedType.instance();
                 default -> parseType(pInner);
             };
 

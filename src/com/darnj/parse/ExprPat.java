@@ -1,5 +1,7 @@
 package com.darnj.parse;
 
+import java.util.logging.Logger;
+
 import com.darnj.LangError;
 import com.darnj.lex.*;
 import com.darnj.op.*;
@@ -18,10 +20,14 @@ import com.darnj.op.*;
 ///////////////////////////////////////
 
 final class ExprPat implements Pattern {
+    private static Logger log = Logger.getGlobal();
+
     static ExprPat instance = new ExprPat();
 
     @Override
     public Op parse(Parser parser) {
+        log.finer("parse expr");
+
         var peek = parser.peek();
         return switch (peek.kind()) {
             case TokenKind.IF -> {

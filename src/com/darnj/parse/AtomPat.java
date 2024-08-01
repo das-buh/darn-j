@@ -1,16 +1,21 @@
 package com.darnj.parse;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import com.darnj.LangError;
 import com.darnj.lex.*;
 import com.darnj.op.*;
 
 final class AtomPat implements Pattern {
+    private static Logger log = Logger.getGlobal();
+
     static AtomPat instance = new AtomPat();
 
     @Override
     public Op parse(Parser parser) {
+        log.finer("parse atom");
+
         var peek = parser.peek();
         var pos = peek.pos();
         return switch (peek.kind()) {
@@ -19,6 +24,8 @@ final class AtomPat implements Pattern {
                 var id = parser.ctx.symbols().intern(parser.src.substring(pos.start(), pos.end()));
 
                 if (parser.peek().kind() == TokenKind.PAREN_OPEN) {
+                    parser.bump();
+                    
                     yield parser.withIndentSensitivity(false, pInner -> {
                         var nil = pInner.peek();
                         if (nil.kind() == TokenKind.PAREN_CLOSE) {

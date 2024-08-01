@@ -14,8 +14,8 @@ public final class Builtins {
     }
 
     void put() {
-        fn("pow", c -> {
-            c.arity(2);
+        fn("print", c -> {
+            c.arity(1);
             // var base = 
             return Value.makeUndefined();
         });

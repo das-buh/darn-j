@@ -35,9 +35,9 @@ public final class Parser {
 
     public static Op parse(String src, Context ctx) {
         var parser = new Parser(src, ctx);
-        log.fine("parsing");
+        log.fine("parse");
         var program = parser.pattern(ProgramPat.instance);
-        log.fine("parsed");
+        log.fine("parse done");
         return program;
     }
 
@@ -115,14 +115,16 @@ public final class Parser {
             var elem = pattern(pattern);
             items.add(elem);
 
-            switch (peek().kind()) {
+            var term = switch (peek().kind()) {
                 case TokenKind.COMMA -> {
                     bump();
-                    continue;
+                    yield false;
                 }
-                default -> {
-                    return items;
-                }
+                default -> true;
+            };
+
+            if (term) {
+                return items;
             }
         }
     }

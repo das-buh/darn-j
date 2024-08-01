@@ -1,16 +1,21 @@
 package com.darnj.parse;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import com.darnj.LangError;
 import com.darnj.lex.*;
 import com.darnj.op.*;
 
 final class BlockPat implements Pattern {
+    private static Logger log = Logger.getGlobal();
+
     static BlockPat instance = new BlockPat();
 
     @Override
     public Op parse(Parser parser) {
+        log.finer("parse block");
+        
         var doPos = parser.peek().pos();
         parser.expect(TokenKind.DO, "expected block while parsing");
 
@@ -30,8 +35,11 @@ final class BlockPat implements Pattern {
             var stmts = new ArrayList<Op>();
             
             while (true) {
-                switch (pInner.peek().kind()) {
-                    case TokenKind.INDENT, TokenKind.EOF -> {}
+                var cont = switch (pInner.peek().kind()) {
+                    case TokenKind.INDENT -> {
+                        yield pInner.peek().indent() == parser.indent;
+                    }
+                    case TokenKind.EOF -> false;
                     default -> {
                         var stmt = pInner.pattern(StmtPat.instance);
                         stmts.add(stmt);
@@ -39,9 +47,15 @@ final class BlockPat implements Pattern {
                         var newline = parser.peek();
                         if (newline.kind() == TokenKind.INDENT && newline.indent() == parser.indent) {
                             parser.bump();
-                            continue;
+                            yield true;
                         }
+
+                        yield false;
                     }
+                };
+
+                if (cont) {
+                    continue;
                 }
 
                 return new Block(doPos.to(stmts.getLast().pos()), stmts);

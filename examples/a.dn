@@ -1,4 +1,4 @@
-# fn foo(a int, b int, c int) int do
-#     return a + b + c
+fn foo(a int, b int, c int) int do
+    return a + b * c
 
-# foo()
+foo(10, 20, 30)

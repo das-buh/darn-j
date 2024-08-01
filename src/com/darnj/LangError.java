@@ -1,6 +1,7 @@
 package com.darnj;
 
 import java.util.ArrayList;
+import java.util.logging.*;
 
 /*
 
@@ -23,12 +24,14 @@ Error: function `foo` expected type int but got type str
 */
 
 public final class LangError extends RuntimeException {
+    private static Logger log = Logger.getGlobal();
+
     Span pos;
     String message;
 
     int line;
     int column;
-    Span underline; // Undefined if multiline.
+    int underline; // Undefined if multiline.
 
     public LangError(Span pos, String message) {
         this.pos = pos;
@@ -36,11 +39,17 @@ public final class LangError extends RuntimeException {
     }
 
     public void render(String src) {
-        System.out.println("Error: " + message);
-        System.out.println(String.format("  + at line %d, column %d", line, column));
-        System.out.println("  |");
+        log.finer(() -> "error pos " + pos.toString());
+        if (log.getLevel() == Level.FINEST) {
+            printStackTrace();
+        }
 
         var snippet = findSnippet(src);
+
+        System.out.println("Error: " + message);
+        System.out.println(String.format("  + at line %d, column %d", line + 1, column + 1));
+        System.out.println("  |");
+
         if (snippet.size() == 1) {
             renderLine(snippet.get(0));
         } else {
@@ -49,8 +58,9 @@ public final class LangError extends RuntimeException {
     }
 
     void renderLine(String line) {
+        var len = pos.end() - pos.start();
         System.out.println("  | " + line);
-        System.out.println("  | " + " ".repeat(underline.start()) + "^".repeat(underline.end() - underline.start()));
+        System.out.println("  | " + " ".repeat(underline) + "^".repeat(len > 0 ? len : 1));
     }
 
     void renderMultiline(ArrayList<String> snippet) {
@@ -63,63 +73,63 @@ public final class LangError extends RuntimeException {
     ArrayList<String> findSnippet(String src) {
         line = 0;
         column = 0;
+        underline = 0;
 
         var start = pos.start();
         var end = pos.end();
 
         var snippet = new ArrayList<String>();
+        var lookingForSnippet = true;
         var snipping = false;
+        var snipLine = false;
         var lineStart = 0;
-
-        var underlineStart = 0;
-        var underlineEnd = 0;
 
         var i = 0;
         var len = src.length();
         for (i = 0; i < len; i++) {
             if (i == start) {
+                lookingForSnippet = false;
                 snipping = true;
-                underlineStart = column;
-            } else if (i == end) {
-                snipping = false;
+                snipLine = true;
+                underline = column;
             }
-
-            column++;
-            if (src.charAt(i) == '\n') {
-                if (snipping) {
-                    snippet.add(src.substring(lineStart, i));
-                }
-                
-                line++;
-                column = 0;
-                lineStart = i + 1;
-            }
-
+            
             if (i == end) {
                 snipping = false;
-                underlineEnd = column;
+            }
+
+            if (lookingForSnippet) {
+                column++;
+            }
+
+            if (src.charAt(i) == '\n') {
+                if (snipLine) {
+                    snippet.add(src.substring(lineStart, i));
+                    snipLine = snipping;
+                }
+                
+                if (lookingForSnippet) {
+                    line++;
+                    column = 0;
+                }
+
+                lineStart = i + 1;
             }
         }
 
         if (i == end) {
             snipping = false;
-            underlineEnd = column;
         }
 
         if (i == start) {
-            snipping = true;
-            underlineStart = column;
+            snipLine = true;
+            underline = column;
         }
 
-        if (snipping) {
+        if (snipLine) {
             snippet.add(src.substring(lineStart, i));
         }
 
-        if (underlineStart == underlineEnd) {
-            underlineEnd++;
-        }
-
-        underline = new Span(underlineStart, underlineEnd);
         return snippet;
     }
 }

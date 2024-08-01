@@ -1,13 +1,19 @@
 package com.darnj.parse;
 
+import java.util.logging.Logger;
+
 import com.darnj.lex.*;
 import com.darnj.op.*;
 
 final class StmtPat implements Pattern {
+    private static Logger log = Logger.getGlobal();
+
     static StmtPat instance = new StmtPat();
 
     @Override
     public Op parse(Parser parser) {
+        log.finer("parse stmt");
+
         var peek = parser.peek();
         return switch (peek.kind()) {
             case TokenKind.IF -> {

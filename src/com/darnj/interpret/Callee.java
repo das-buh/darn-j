@@ -19,21 +19,6 @@ public record Callee(int func, Span pos, ArrayList<Arg> args, Context ctx) {
         }
     }
 
-    // Expects `args` and `params` to be the same length.
-    public void types(ArrayList<Param> params) {
-        var arity = params.size();
-        for (var i = 0; i < arity; i++) {
-            var arg = args.get(i);
-            var param = params.get(i);
-            if (!arg.value().type().eq(param.type())) {
-                var format = "function `%s` expected argument type %s, but type %s was supplied"; 
-                var paramType = param.type().name();
-                var argType = arg.value().type().name();
-                throw new LangError(arg.pos(), String.format(format, name(), paramType, argType));       
-            }
-        }
-    }
-
     public LangError mismatch() {
         var format = "function `%s` is undefined for argument types (%s)";
         var types = args.stream()
@@ -48,5 +33,15 @@ public record Callee(int func, Span pos, ArrayList<Arg> args, Context ctx) {
             throw new LangError(arg.pos(), "argument cannot be type undefined");
         }
         return arg.value();
+    }
+
+    public boolean bool(int idx) {
+        var arg = args.get(idx);
+        if (arg.value().inner instanceof BoolValue a) {
+            return a.value();
+        }
+
+        var format = "function `%s` expected argument type bool, but type %s was supplied"; 
+        throw new LangError(arg.pos(), String.format(format, name(), arg.value().type().name()));
     }
 }

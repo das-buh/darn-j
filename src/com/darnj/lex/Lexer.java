@@ -34,11 +34,10 @@ public final class Lexer {
 
     public void bump() {
         while (true) {
-            log.fine("lexing");
             var token = lex();
-            log.fine("lexed");
             if (token != null) {
                 lookahead = token;
+                break;
             }
         }
     }
@@ -53,6 +52,8 @@ public final class Lexer {
 
     // Returns null if a non-significant token was lexed.
     Token lex() {
+        log.finest("lex");
+
         if (pos == srcLen) {
             return new Token(new Span(pos, pos), 0, line + 1, TokenKind.EOF);
         }
@@ -79,11 +80,13 @@ public final class Lexer {
                 }
             }
             case '\r' -> {
+                inIndentMode = false;
                 pos++;
                 yield null;
             }
             case '\n' -> {
                 inIndentMode = true;
+                indent = 0;
                 pos++;
                 line++;
                 yield null;
@@ -96,30 +99,36 @@ public final class Lexer {
                 yield null;
             }
             case '"' -> {
+                inIndentMode = false;
+
                 pos++;
                 while (pos < srcLen) {
                     var c = src.charAt(pos);
-                    switch (c) {
+                    var term = switch (c) {
                         case '"' -> {
-                            break;
+                            yield true;
                         }
                         case '\\' -> {
                             pos++;
                             if (pos == srcLen) {
-                                break;
+                                yield true;
                             }
 
-                            switch (src.charAt(pos)) {
+                            yield switch (src.charAt(pos)) {
                                 case '"' | 'n' | 't' | '0' -> {
-                                    continue;
+                                    yield false;
                                 }
                                 default -> throw new LangError(pos(), "invalid escape character");
-                            }
+                            };
                         }
                         default -> {
                             pos++;
-                            continue;
+                            yield false;
                         }
+                    };
+
+                    if (term) {
+                        break;
                     }
                 }
 
