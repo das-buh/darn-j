@@ -1,11 +1,16 @@
 package com.darnj.op;
 
-import com.darnj.Error;
 import com.darnj.interpret.*;
+import com.darnj.value.*;
 
 public final class Not extends UnaryOp {
     @Override
-    public Value eval(Context ctx) throws Error {
+    public Value eval(Context ctx) {
+        var operand = this.operand.eval(ctx);
+        if (operand.inner instanceof BoolValue o) {
+            return Value.makeBool(!o.value());
+        }
         
+        throw error(String.format("cannot logical-not type %s", operand.type().name()));
     }
 }

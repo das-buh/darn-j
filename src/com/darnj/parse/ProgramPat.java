@@ -2,101 +2,115 @@ package com.darnj.parse;
 
 import java.util.ArrayList;
 
-import com.darnj.Error;
+import com.darnj.LangError;
+import com.darnj.Span;
 import com.darnj.interpret.*;
 import com.darnj.lex.*;
 import com.darnj.op.*;
 import com.darnj.type.*;
 
-public final class ProgramPat extends Pattern {
+final class ProgramPat implements Pattern {
     static ProgramPat instance = new ProgramPat();
 
     @Override
-    Op parse(Parser parser) throws Error {
-        var peek = parser.peek(0);
-        switch (peek.kind()) {
-            case TokenKind.FN -> {
-                parser.bump();
-                parseFunction(parser);
+    public Op parse(Parser parser) {
+        var stmts = new ArrayList<Op>();
+
+        while (true) {
+            switch (parser.peek().kind()) {
+                case TokenKind.FN -> {
+                    parser.bump();
+                    parseFunction(parser);
+                }
+                case TokenKind.EOF -> {
+                    return new Block(new Span(0, parser.src.length()), stmts);
+                }
+                default -> {
+                    var stmt = parser.pattern(StmtPat.instance);
+                    stmts.add(stmt);
+
+                    switch (parser.peek().kind()) {
+                        case TokenKind.INDENT, TokenKind.EOF -> {
+                            parser.bump();
+                        }
+                        default -> throw new LangError(parser.peek().pos(), "expected newline while parsing");
+                    }
+                }
             }
-            default -> parser.pattern(StmtPat.instance);
-        };
-        // TODO
+        }
     }
 
     // Returns null if parsed a function declaration.
-    Op parseFunction(Parser parser) throws Error {
+    void parseFunction(Parser parser) {
+        var funcPos = parser.peek().pos();
         var func = parser.expectIdent();
 
         parser.expect(TokenKind.PAREN_OPEN, "expected opening parenthesis while parsing");
-        return parser.withIndentSensitivity(false, new Pattern() {
-            @Override
-            Op parse(Parser parser) throws Error {
-                var params = new ArrayList<IdentWithType>();
-                if (parser.peek(0).kind() == TokenKind.PAREN_CLOSE) {
-                    parser.bump();
-                } else while (true) {
-                    var param = parser.expectIdent();
-                    var type = parseType(parser);
-                    params.add(new IdentWithType(param, type));
-        
-                    var delim = parser.peek(0);
-                    switch (delim.kind()) {
-                        case TokenKind.COMMA -> {
-                            parser.bump();
-                            continue;
-                        }
-                        case TokenKind.PAREN_CLOSE -> {
-                            parser.bump();
-                            break;
-                        }
-                        default -> throw new Error(delim.pos(), "expected closing parenthesis while parsing");
+        parser.withIndentSensitivity(false, pInner -> {
+            var params = new ArrayList<Param>();
+            if (pInner.peek().kind() == TokenKind.PAREN_CLOSE) {
+                pInner.bump();
+            } else while (true) {
+                var param = pInner.expectIdent();
+                var type = parseType(pInner);
+                params.add(new Param(param, type));
+    
+                var delim = pInner.peek();
+                switch (delim.kind()) {
+                    case TokenKind.COMMA -> {
+                        pInner.bump();
+                        continue;
                     }
-                };
-
-                var returnType = switch (parser.peek(0).kind()) {
-                    case TokenKind.DO -> {
-                        parser.bump();
-                        yield NilType.instance();
+                    case TokenKind.PAREN_CLOSE -> {
+                        pInner.bump();
+                        break;
                     }
-                    default -> parseType(parser);
-                };
+                    default -> throw new LangError(delim.pos(), "expected closing parenthesis while parsing");
+                }
+            };
 
-                var body = parser.pattern(BlockPat.instance);
+            var returnType = switch (pInner.peek().kind()) {
+                case TokenKind.DO -> {
+                    pInner.bump();
+                    yield UndefinedType.instance();
+                }
+                default -> parseType(pInner);
+            };
 
-                // TODO add to context
-                new Function(func, params, returnType, body);
-                return null;
+            var body = pInner.pattern(BlockPat.instance);
+
+            var funcs = pInner.ctx.funcs();
+            if (funcs.containsKey(func)) {
+                throw new LangError(funcPos, "function `" + pInner.ctx.symbols().resolve(func) + "` is already defined");
             }
+
+            funcs.put(func, new UserFunction(func, funcPos, params, returnType, body));
+            return null;
         });
     }
     
-    static Type parseType(Parser parser) throws Error {
-        var peek = parser.peek(0);
+    static Type parseType(Parser parser) {
+        var peek = parser.peek();
         
         var type = switch (peek.kind()) {
-            case TokenKind.BRACKET_OPEN -> {
-                parser.bump();
-                var elem = parseType(parser);
-                parser.expect(TokenKind.BRACKET_CLOSE, "expected closing bracket while parsing");
-                yield elem.slice();
-            }
-            default -> {
-                var prim = switch (peek.kind()) {
-                    case TokenKind.INT -> IntType.instance();
-                    case TokenKind.FLOAT -> FloatType.instance();
-                    case TokenKind.BOOL -> BoolType.instance();
-                    case TokenKind.STR -> StrType.instance();
-                    default -> throw new Error(peek.pos(), "expected type while parsing");
-                };
-                parser.bump();
-                yield prim;
-            }
+            case TokenKind.INT -> IntType.instance();
+            case TokenKind.FLOAT -> FloatType.instance();
+            case TokenKind.BOOL -> BoolType.instance();
+            case TokenKind.STR -> StrType.instance();
+            case TokenKind.LIST -> StrType.instance();
+            default -> throw new LangError(peek.pos(), "expected type while parsing");
         };
+        parser.bump();
 
         while (true) {
             var cons = switch (peek.kind()) {
-                case TokenKind.QMARK -> type.optional();
+                case TokenKind.QMARK -> {
+                    var optional = type.optional();
+                    if (optional == null) {
+                        throw new LangError(peek.pos(), "type cannot be doubly nil-able");
+                    }
+                    yield optional;
+                }
                 case TokenKind.STAR -> type.reference();
                 default -> null;
             };
@@ -105,6 +119,7 @@ public final class ProgramPat extends Pattern {
                 return type;
             }
 
+            parser.bump();
             type = cons;
         }
     }

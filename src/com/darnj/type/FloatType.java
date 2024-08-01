@@ -11,4 +11,9 @@ public final class FloatType extends Type {
     public String name() {
         return "float";
     }
+
+    @Override
+    public boolean eq(Type other) {
+        return other instanceof FloatType;
+    }
 }

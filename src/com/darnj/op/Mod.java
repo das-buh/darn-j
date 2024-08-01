@@ -1,11 +1,21 @@
 package com.darnj.op;
 
-import com.darnj.Error;
-import com.darnj.interpret.*;
+import com.darnj.type.*;
+import com.darnj.value.*;
 
-public final class Mod extends BinaryOp {
+public final class Mod extends NumBinOp {
     @Override
-    public Value eval(Context ctx) throws Error {
-        
+    Value evalInt(long lhs, long rhs) {
+        return Value.makeInt(lhs % rhs);
+    }
+
+    @Override
+    Value evalFloat(double lhs, double rhs) {
+        return Value.makeFloat(lhs % rhs);
+    }
+
+    @Override
+    String typeMismatch(Type lhs, Type rhs) {
+        return String.format("cannot modulo types %s and %s", lhs.name(), rhs.name());
     }
 }

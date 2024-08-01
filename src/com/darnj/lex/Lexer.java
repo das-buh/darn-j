@@ -1,9 +1,13 @@
 package com.darnj.lex;
 
-import com.darnj.Error;
+import java.util.logging.Logger;
+
+import com.darnj.LangError;
 import com.darnj.Span;
 
 public final class Lexer {
+    private static Logger log = Logger.getGlobal();
+
     String src;
     int srcLen;
 
@@ -14,9 +18,9 @@ public final class Lexer {
 
     static final int LOOKAHEAD = 2;
     static final int LOOKAHEAD_MINUS_ONE = LOOKAHEAD - 1;
-    Token[] lookahead;
+    Token lookahead;
 
-    public Lexer(String src) throws Error {
+    public Lexer(String src) {
         this.src = src;
         srcLen = src.length();
 
@@ -25,26 +29,22 @@ public final class Lexer {
         line = 0;
         inIndentMode = true;
 
-        lookahead = new Token[LOOKAHEAD];
-        for (var i = 0; i < LOOKAHEAD; i++) {
-            bump();
-        }
+        bump();
     }
 
-    public void bump() throws Error {
+    public void bump() {
         while (true) {
+            log.fine("lexing");
             var token = lex();
+            log.fine("lexed");
             if (token != null) {
-                for (var i = 0; i < LOOKAHEAD_MINUS_ONE; i++) {
-                    lookahead[i] = lookahead[i + 1];
-                }
-                lookahead[LOOKAHEAD_MINUS_ONE] = token;
+                lookahead = token;
             }
         }
     }
 
-    public Token peek(int idx) {
-        return lookahead[idx];
+    public Token peek() {
+        return lookahead;
     }
 
     Span pos() {
@@ -52,9 +52,9 @@ public final class Lexer {
     }
 
     // Returns null if a non-significant token was lexed.
-    Token lex() throws Error {
+    Token lex() {
         if (pos == srcLen) {
-            return new Token(new Span(pos, pos), 0, line, TokenKind.EOF);
+            return new Token(new Span(pos, pos), 0, line + 1, TokenKind.EOF);
         }
 
         var start = pos;
@@ -72,11 +72,15 @@ public final class Lexer {
             }
             case '\t' -> {
                 if (inIndentMode) {
-                    throw new Error(pos(), "tabs may not be used for indentation");
+                    throw new LangError(pos(), "tabs may not be used for indentation");
                 } else {
                     pos++;
                     yield null;
                 }
+            }
+            case '\r' -> {
+                pos++;
+                yield null;
             }
             case '\n' -> {
                 inIndentMode = true;
@@ -109,7 +113,7 @@ public final class Lexer {
                                 case '"' | 'n' | 't' | '0' -> {
                                     continue;
                                 }
-                                default -> throw new Error(pos(), "invalid escape character");
+                                default -> throw new LangError(pos(), "invalid escape character");
                             }
                         }
                         default -> {
@@ -120,7 +124,7 @@ public final class Lexer {
                 }
 
                 if (pos == srcLen) {
-                    throw new Error(pos(), "unclosed string literal");
+                    throw new LangError(pos(), "unclosed string literal");
                 }
 
                 pos++;
@@ -154,6 +158,7 @@ public final class Lexer {
                         case "float" -> TokenKind.FLOAT;
                         case "bool" -> TokenKind.BOOL;
                         case "str" -> TokenKind.STR;
+                        case "list" -> TokenKind.STR;
                         case "not" -> TokenKind.NOT;
                         case "and" -> TokenKind.AND;
                         case "or" -> TokenKind.OR;
@@ -213,7 +218,7 @@ public final class Lexer {
                     case ')' -> TokenKind.PAREN_CLOSE;
                     case '[' -> TokenKind.BRACKET_OPEN;
                     case ']' -> TokenKind.BRACKET_CLOSE;
-                    default -> throw new Error(pos(), "invalid input while parsing");
+                    default -> throw new LangError(pos(), "invalid input while parsing");
                 };
 
                 pos++;

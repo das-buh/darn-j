@@ -11,4 +11,9 @@ public final class UndefinedType extends Type {
     public String name() {
         return "undefined";
     }
+
+    @Override
+    public boolean eq(Type other) {
+        return other instanceof UndefinedType;
+    }
 }

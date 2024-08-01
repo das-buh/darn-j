@@ -1,20 +1,21 @@
 package com.darnj.op;
 
-import com.darnj.Error;
 import com.darnj.Span;
 import com.darnj.interpret.*;
+import com.darnj.value.*;
 
 public final class Return extends Op {
-    // Null if nil return value.
+    // Null if undefined return value.
     Op value;
     
     public Return(Span pos, Op value) {
-        super(pos);
+        this.pos = pos;
         this.value = value;
     }
 
     @Override
-    public Value eval(Context ctx) throws Error {
-        
+    public Value eval(Context ctx) {
+        var value = this.value != null ? this.value.eval(ctx) : Value.makeUndefined(); 
+        throw new ReturnEffect(pos, value);
     }
 }

@@ -1,26 +1,28 @@
 package com.darnj.op;
 
-import com.darnj.Error;
+import com.darnj.LangError;
 import com.darnj.Span;
 import com.darnj.interpret.*;
+import com.darnj.value.*;
 
-public final class Assign extends Op implements Assignable {
+public final class Assign extends Op {
     Op assignee;
     Op value;
 
     public Assign(Span pos, Op assignee, Op value) {
-        super(pos);
+        this.pos = pos;
         this.assignee = assignee;
         this.value = value;
     }
     
     @Override
-    public Value eval(Context ctx) throws Error {
+    public Value eval(Context ctx) {
+        if (assignee instanceof Assignable a) {
+            var referent = a.referent(ctx);
+            referent.inner = value.eval(ctx).inner;
+            return Value.makeUndefined();
+        }
         
-    }
-
-    @Override
-    public void assign(Context ctx) throws Error {
-        
+        throw new LangError(assignee.pos(), "invalid assignee");
     }
 }

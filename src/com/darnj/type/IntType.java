@@ -11,4 +11,9 @@ public final class IntType extends Type {
     public String name() {
         return "int";
     }
+
+    @Override
+    public boolean eq(Type other) {
+        return other instanceof IntType;
+    }
 }

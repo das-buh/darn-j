@@ -1,19 +1,20 @@
 package com.darnj.op;
 
-import com.darnj.Error;
+import com.darnj.LangError;
 import com.darnj.Span;
 import com.darnj.interpret.*;
+import com.darnj.value.*;
 
 public abstract class Op {
     Span pos;
-
-    Op(Span pos) {
-        this.pos = pos;
-    }
 
     public Span pos() {
         return pos;
     }
 
-    public abstract Value eval(Context ctx) throws Error;
+    public abstract Value eval(Context ctx);
+
+    LangError error(String message) { 
+        return new LangError(pos, message);
+    }
 }

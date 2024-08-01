@@ -8,8 +8,8 @@ public final class Interner {
     ArrayList<String> strings;
 
     public Interner() {
-        this.map = new HashMap<String, Integer>();
-        this.strings = new ArrayList<String>();
+        this.map = new HashMap<>();
+        this.strings = new ArrayList<>();
     }
 
     public int intern(String s) {

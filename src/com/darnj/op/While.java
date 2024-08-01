@@ -1,21 +1,31 @@
 package com.darnj.op;
 
-import com.darnj.Error;
 import com.darnj.Span;
-import com.darnj.interpret.Value;
+import com.darnj.interpret.*;
+import com.darnj.value.*;
 
-public class While extends Op {
+public final class While extends Op {
     Op cond;
     Op body;
 
     public While(Span pos, Op cond, Op body) {
-        super(pos);
+        this.pos = pos;
         this.cond = cond;
         this.body = body;
     }
 
     @Override
-    public Value eval(Context ctx) throws Error {
+    public Value eval(Context ctx) {
+        while (cond.eval(ctx).inner instanceof BoolValue c && c.value()) {
+            try {
+                body.eval(ctx);
+            } catch (ContinueEffect _) {
+                continue;
+            } catch (BreakEffect _) {
+                break;
+            }
+        } 
 
+        return Value.makeUndefined();
     }
 }

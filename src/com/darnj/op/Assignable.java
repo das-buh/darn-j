@@ -1,8 +1,8 @@
 package com.darnj.op;
 
-import com.darnj.Error;
 import com.darnj.interpret.*;
+import com.darnj.value.*;
 
 public interface Assignable {
-    public void assign(Context ctx) throws Error;
+    public Value referent(Context ctx);
 }

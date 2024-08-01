@@ -11,4 +11,9 @@ public final class StrType extends Type {
     public String name() {
         return "str";
     }
+
+    @Override
+    public boolean eq(Type other) {
+        return other instanceof StrType;
+    }
 }

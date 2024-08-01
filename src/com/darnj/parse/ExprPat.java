@@ -1,6 +1,6 @@
 package com.darnj.parse;
 
-import com.darnj.Error;
+import com.darnj.LangError;
 import com.darnj.lex.*;
 import com.darnj.op.*;
 
@@ -17,38 +17,44 @@ import com.darnj.op.*;
 //      (least precedence)
 ///////////////////////////////////////
 
-public final class ExprPat extends Pattern {
+final class ExprPat implements Pattern {
     static ExprPat instance = new ExprPat();
 
     @Override
-    Op parse(Parser parser) throws Error {
-        var peek = parser.peek(0);
+    public Op parse(Parser parser) {
+        var peek = parser.peek();
         return switch (peek.kind()) {
             case TokenKind.IF -> {
                 parser.bump();
                 var cond = parser.pattern(ExprPat.instance);
                 var ifBranch = parser.pattern(BlockPat.instance);
-                parser.expect(TokenKind.ELSE, "expected else branch while parsing");
-                var elseBranch = parser.pattern(ExprPat.instance);
-                yield new IfElse(peek.pos().to(elseBranch.pos()), cond, ifBranch, elseBranch);
+
+                var peekElse = parser.peekRaw();
+                if (peekElse.kind() == TokenKind.ELSE && peekElse.indent() == parser.indent) {
+                    parser.bumpRaw();
+                    var elseBranch = parser.pattern(ExprPat.instance);
+                    yield new IfElse(peek.pos().to(elseBranch.pos()), cond, ifBranch, elseBranch);
+                }
+
+                throw new LangError(peekElse.pos(), "expected else branch while parsing");
             }
             default -> parser.pattern(OrPat.instance);
         };
     }
 }
 
-abstract class InfixPat extends Pattern {
-    abstract Op operand(Parser parser) throws Error;
+abstract class InfixPat implements Pattern {
+    abstract Op operand(Parser parser);
     
     // Returns null if no operator is matched.
     abstract BinaryOp match(TokenKind op);
 
     @Override
-    Op parse(Parser parser) throws Error {
+    public Op parse(Parser parser) {
         var op = operand(parser);
 
         while (true) {
-            var cons = match(parser.peek(0).kind());
+            var cons = match(parser.peek().kind());
 
             if (cons == null) {
                 return op;
@@ -61,15 +67,15 @@ abstract class InfixPat extends Pattern {
     }
 }
 
-abstract class PrefixPat extends Pattern {
-    abstract Op operand(Parser parser) throws Error;
+abstract class PrefixPat implements Pattern {
+    abstract Op operand(Parser parser);
     
     // Returns null if no operator is matched.
     abstract UnaryOp match(TokenKind op);
 
     @Override
-    Op parse(Parser parser) throws Error {
-        var op = match(parser.peek(0).kind());
+    public Op parse(Parser parser) {
+        var op = match(parser.peek().kind());
 
         if (op == null) {
             return operand(parser);
@@ -85,7 +91,7 @@ final class OrPat extends InfixPat {
     static OrPat instance = new OrPat();
 
     @Override
-    Op operand(Parser parser) throws Error {
+    Op operand(Parser parser) {
         return parser.pattern(AndPat.instance);
     }
 
@@ -102,7 +108,7 @@ final class AndPat extends InfixPat {
     static AndPat instance = new AndPat();
 
     @Override
-    Op operand(Parser parser) throws Error {
+    Op operand(Parser parser) {
         return parser.pattern(NotPat.instance);
     }
 
@@ -119,7 +125,7 @@ final class NotPat extends PrefixPat {
     static NotPat instance = new NotPat();
 
     @Override
-    Op operand(Parser parser) throws Error {
+    Op operand(Parser parser) {
         return parser.pattern(ComparePat.instance);
     }
 
@@ -136,7 +142,7 @@ final class ComparePat extends InfixPat {
     static ComparePat instance = new ComparePat();
 
     @Override
-    Op operand(Parser parser) throws Error {
+    Op operand(Parser parser) {
         return parser.pattern(SumPat.instance);
     }
 
@@ -158,7 +164,7 @@ final class SumPat extends InfixPat {
     static SumPat instance = new SumPat();
 
     @Override
-    Op operand(Parser parser) throws Error {
+    Op operand(Parser parser) {
         return parser.pattern(ProductPat.instance);
     }
 
@@ -176,7 +182,7 @@ final class ProductPat extends InfixPat {
     static ProductPat instance = new ProductPat();
     
     @Override
-    Op operand(Parser parser) throws Error {
+    Op operand(Parser parser) {
         return parser.pattern(MiscPrefixPat.instance);
     }
 
@@ -195,7 +201,7 @@ final class MiscPrefixPat extends PrefixPat {
     static MiscPrefixPat instance = new MiscPrefixPat();
 
     @Override
-    Op operand(Parser parser) throws Error {
+    Op operand(Parser parser) {
         return parser.pattern(AtomPat.instance);
     }
 

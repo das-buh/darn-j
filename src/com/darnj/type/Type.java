@@ -1,25 +1,23 @@
 package com.darnj.type;
 
 public abstract sealed class Type
-    permits IntType, FloatType, BoolType, StrType, NilType, OptionalType, ReferenceType, SliceType, UndefinedType
+    permits IntType, FloatType, BoolType, StrType, NilType, OptionalType, ReferenceType, ListType, UndefinedType
 {
-    int id;
-    static int counter;
-
-    Type() {
-        id = counter;
-        counter += 1;
-    }
-
     public abstract String name();
+
+    public abstract boolean eq(Type other);
 
     Type optional;
     Type reference;
-    Type slice;
 
+    // Returns null if already optional.
     public Type optional() {
         if (optional != null) {
             return optional;
+        }
+
+        if (optional instanceof OptionalType) {
+            return null;
         }
 
         optional = new OptionalType(this);
@@ -33,14 +31,5 @@ public abstract sealed class Type
 
         reference = new ReferenceType(this);
         return reference;
-    }
-
-    public Type slice() {
-        if (slice != null) {
-            return slice;
-        }
-
-        slice = new SliceType(this);
-        return slice;
     }
 }

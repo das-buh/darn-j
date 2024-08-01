@@ -1,19 +1,34 @@
 package com.darnj.op;
 
-import com.darnj.Error;
 import com.darnj.Span;
 import com.darnj.interpret.*;
+import com.darnj.value.*;
 
-public final class Variable extends Op {
+public final class Variable extends Op implements Assignable {
     int id;
 
     public Variable(Span pos, int id) {
-        super(pos);
+        this.pos = pos;
         this.id = id;
     }
 
     @Override
-    public Value eval(Context ctx) throws Error {
+    public Value eval(Context ctx) {
+        if (ctx.vars().containsKey(id)) {
+            return ctx.vars().get(id);
+        }
 
+        throw error("variable `%s` is undefined");
+    }
+
+    @Override
+    public Value referent(Context ctx) {
+        if (ctx.vars().containsKey(id)) {
+            return ctx.vars().get(id);
+        }
+
+        var referent = Value.makeUndefined();
+        ctx.vars().put(id, referent);
+        return referent;
     }
 }

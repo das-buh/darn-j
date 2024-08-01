@@ -11,4 +11,9 @@ public final class NilType extends Type {
     public String name() {
         return "nil";
     }
+
+    @Override
+    public boolean eq(Type other) {
+        return other instanceof NilType || other instanceof OptionalType;
+    }
 }
