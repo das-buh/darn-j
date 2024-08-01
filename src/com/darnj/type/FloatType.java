@@ -14,6 +14,6 @@ public final class FloatType extends Type {
 
     @Override
     public boolean eq(Type other) {
-        return other instanceof FloatType;
+        return other instanceof FloatType || other instanceof OptionalType o && o.inner instanceof FloatType;
     }
 }

@@ -127,11 +127,12 @@ final class ProgramPat implements Pattern {
         parser.bump();
 
         while (true) {
-            var cons = switch (peek.kind()) {
+            var suffix = parser.peek();
+            var cons = switch (suffix.kind()) {
                 case TokenKind.QMARK -> {
                     var optional = type.optional();
                     if (optional == null) {
-                        throw new LangError(peek.pos(), "type cannot be doubly nil-able");
+                        throw new LangError(suffix.pos(), "type cannot be doubly nil-able");
                     }
                     yield optional;
                 }

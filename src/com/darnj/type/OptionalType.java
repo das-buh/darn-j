@@ -14,6 +14,8 @@ public final class OptionalType extends Type {
 
     @Override
     public boolean eq(Type other) {
-        return other instanceof NilType || other instanceof OptionalType o && inner.eq(o.inner);
+        return other instanceof NilType 
+            || other instanceof OptionalType o && inner.eq(o.inner)
+            || inner.eq(other);
     }
 }

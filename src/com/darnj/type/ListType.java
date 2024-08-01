@@ -14,6 +14,6 @@ public final class ListType extends Type {
 
     @Override
     public boolean eq(Type other) {
-        return other instanceof ListType;
+        return other instanceof ListType || other instanceof OptionalType o && o.inner instanceof ListType;
     }
 }

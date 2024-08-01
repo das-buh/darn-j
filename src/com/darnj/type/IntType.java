@@ -14,6 +14,6 @@ public final class IntType extends Type {
 
     @Override
     public boolean eq(Type other) {
-        return other instanceof IntType;
+        return other instanceof IntType || other instanceof OptionalType o && o.inner instanceof IntType;
     }
 }

@@ -1,0 +1,9 @@
+fn say(msg str?) do
+    if msg == nil do
+        print("Hi")
+    else do
+        print(msg)
+
+say("Hello world")
+say(nil)
+say(123)

@@ -14,6 +14,6 @@ public final class BoolType extends Type {
 
     @Override
     public boolean eq(Type other) {
-        return other instanceof BoolType;
+        return other instanceof BoolType || other instanceof OptionalType o && o.inner instanceof BoolType;
     }
 }

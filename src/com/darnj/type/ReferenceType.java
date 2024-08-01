@@ -14,6 +14,7 @@ public final class ReferenceType extends Type {
 
     @Override
     public boolean eq(Type other) {
-        return other instanceof ReferenceType o && inner.eq(o.inner);
+        return other instanceof ReferenceType a && inner.eq(a.inner)
+            || other instanceof OptionalType b && b.inner instanceof ReferenceType c && inner.eq(c.inner);
     }
 }

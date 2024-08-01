@@ -14,6 +14,6 @@ public final class StrType extends Type {
 
     @Override
     public boolean eq(Type other) {
-        return other instanceof StrType;
+        return other instanceof StrType || other instanceof OptionalType o && o.inner instanceof StrType;
     }
 }
