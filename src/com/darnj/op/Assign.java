@@ -17,12 +17,23 @@ public final class Assign extends Op {
     
     @Override
     public Value eval(Context ctx) {
-        if (assignee instanceof Assignable a) {
-            var referent = a.referent(ctx);
-            referent.inner = value.eval(ctx).inner;
-            return Value.makeUndefined();
+        switch (assignee) {
+            case Variable a -> {
+                var value = this.value.eval(ctx).inner;
+
+                if (ctx.vars().containsKey(a.id)) {
+                    ctx.vars().get(a.id).inner = value;
+                } else {
+                    ctx.vars().put(a.id, new Value(value));
+                }
+            }
+            case Deref a -> {
+                var referent = a.dereference(ctx);
+                referent.inner = this.value.eval(ctx).inner;
+            }
+            default -> throw new LangError(assignee.pos(), "invalid assignee");
         }
-        
-        throw new LangError(assignee.pos(), "invalid assignee");
+
+        return Value.makeUndefined();
     }
 }

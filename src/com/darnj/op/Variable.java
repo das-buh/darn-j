@@ -4,7 +4,7 @@ import com.darnj.Span;
 import com.darnj.interpret.*;
 import com.darnj.value.*;
 
-public final class Variable extends Op implements Assignable {
+public final class Variable extends Op {
     int id;
 
     public Variable(Span pos, int id) {
@@ -19,16 +19,5 @@ public final class Variable extends Op implements Assignable {
         }
 
         throw error(String.format("variable `%s` is undefined", ctx.symbols().resolve(id)));
-    }
-
-    @Override
-    public Value referent(Context ctx) {
-        if (ctx.vars().containsKey(id)) {
-            return ctx.vars().get(id);
-        }
-
-        var referent = Value.makeUndefined();
-        ctx.vars().put(id, referent);
-        return referent;
     }
 }

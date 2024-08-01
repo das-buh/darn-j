@@ -16,7 +16,6 @@ C:\Users\mihua\D\projects\darn-j\src\com\darnj\lex\TokenKind.java
 C:\Users\mihua\D\projects\darn-j\src\com\darnj\op\Add.java
 C:\Users\mihua\D\projects\darn-j\src\com\darnj\op\And.java
 C:\Users\mihua\D\projects\darn-j\src\com\darnj\op\Assign.java
-C:\Users\mihua\D\projects\darn-j\src\com\darnj\op\Assignable.java
 C:\Users\mihua\D\projects\darn-j\src\com\darnj\op\BinaryOp.java
 C:\Users\mihua\D\projects\darn-j\src\com\darnj\op\BinaryOpBuilder.java
 C:\Users\mihua\D\projects\darn-j\src\com\darnj\op\Block.java

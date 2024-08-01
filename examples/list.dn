@@ -11,3 +11,8 @@ c = pop(b)
 print(fmt(a))
 print(fmt(b))
 print(fmt(c))
+
+print(fmt(idx(a, 1)))
+print(fmt(idx(a, 10)))
+*idx(a, 1) = 10
+print(fmt(a))

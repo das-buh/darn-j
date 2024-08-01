@@ -12,7 +12,8 @@ public final class Ref extends UnaryOp {
                 return Value.makeReference(ctx.vars().get(o.id));
             }
 
-            throw new LangError(o.pos(), "variable `%s` is undefined");
+            var format = "variable `%s` is undefined";
+            throw new LangError(o.pos(), String.format(format, ctx.symbols().resolve(o.id)));
         }
 
         var operand = this.operand.eval(ctx);
