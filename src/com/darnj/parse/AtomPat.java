@@ -63,7 +63,7 @@ final class AtomPat implements Pattern {
             }
             case TokenKind.STR_LITERAL -> {
                 parser.bump();
-                yield new StrConstant(pos, parser.src.substring(pos.start(), pos.end()));
+                yield new StrConstant(pos, parser.src.substring(pos.start() + 1, pos.end() - 1));
             }
             case TokenKind.TRUE -> {
                 parser.bump();
@@ -72,6 +72,10 @@ final class AtomPat implements Pattern {
             case TokenKind.FALSE -> {
                 parser.bump();
                 yield new False(pos);
+            }
+            case TokenKind.NIL -> {
+                parser.bump();
+                yield new Nil(pos);
             }
             case TokenKind.PAREN_OPEN -> {
                 parser.bump();

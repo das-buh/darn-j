@@ -50,6 +50,10 @@ final class BlockPat implements Pattern {
                             yield true;
                         }
 
+                        if (!newline.isDelim()) {
+                            throw new LangError(newline.pos(), "expected newline while parsing");
+                        }
+
                         yield false;
                     }
                 };

@@ -17,7 +17,7 @@ public final class Deref extends UnaryOp implements Assignable {
     Value dereference(Context ctx) {
         var operand = this.operand.eval(ctx);
         if (operand.inner instanceof ReferenceValue o) {
-            return o.inner();
+            return o.referent();
         }
 
         throw error(String.format("cannot dereference type %s", operand.type().name()));

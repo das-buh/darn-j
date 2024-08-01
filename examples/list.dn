@@ -1,0 +1,11 @@
+a = [1, 2, 3]
+print(fmt(a))
+
+push(a, 4)
+print(fmt(a))
+
+b = a
+c = pop(b)
+print(fmt(a))
+print(fmt(b))
+print(fmt(c))

@@ -18,4 +18,9 @@ public final class BoolValue extends ValueInternal {
     boolean eq(ValueInternal other) {
         return other instanceof BoolValue o && value == o.value;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

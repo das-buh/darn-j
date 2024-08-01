@@ -18,4 +18,9 @@ public final class StrValue extends ValueInternal {
     boolean eq(ValueInternal other) {
         return other instanceof StrValue o && value.equals(o.value);
     }
+
+    @Override
+    public String toString() {
+        return "\"" + value + "\"";
+    }
 }

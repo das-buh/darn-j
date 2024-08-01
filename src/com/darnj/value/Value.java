@@ -20,7 +20,7 @@ public final class Value {
     }
 
     public Value move() {
-        return inner.move();
+        return new Value(inner);
     }
 
     public static Value makeInt(long value) {
@@ -53,5 +53,10 @@ public final class Value {
 
     public static Value makeUndefined() {
         return new Value(UndefinedValue.instance);
+    }
+
+    @Override
+    public String toString() {
+        return inner.toString();
     }
 }

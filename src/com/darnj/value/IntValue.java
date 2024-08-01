@@ -18,4 +18,9 @@ public final class IntValue extends ValueInternal {
     boolean eq(ValueInternal other) {
         return other instanceof IntValue o && value == o.value;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

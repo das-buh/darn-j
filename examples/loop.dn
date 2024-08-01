@@ -1,0 +1,46 @@
+fn range(n int) do
+    i = 0
+    while i < n do
+        print(fmt(i))
+        i = i + 1
+
+fn desugared_while(n int) do
+    i = 0
+    while true do
+        if i < n do
+            print(fmt(i))
+            i = i + 1
+            continue
+            print("Unreachable")
+        else do
+            break
+            print("Also unreachable")
+
+fn fizzbuzz(n int) do
+    i = 0
+    while i < n do
+        if i % 15 == 0 do
+            msg = "Fizzbuzz"
+        else if i % 3 == 0 do
+            msg = ("Fizz")
+        else if i % 5 == 0 do
+            msg = "Buzz"
+        else do
+            msg = ""
+        
+        print(concat(concat(fmt(i), " "), msg))
+        i = i + 1
+
+range(3)
+print("")
+
+range(5)
+print("")
+
+desugared_while(7)
+print("")
+
+fizzbuzz(35)
+
+# Forever...
+while true do continue

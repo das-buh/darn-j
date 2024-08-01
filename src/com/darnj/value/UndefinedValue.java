@@ -13,4 +13,9 @@ public final class UndefinedValue extends ValueInternal {
     boolean eq(ValueInternal other) {
         throw new RuntimeException("tried to eq undefined");
     }
+
+    @Override
+    public String toString() {
+        return "undefined";
+    }
 }

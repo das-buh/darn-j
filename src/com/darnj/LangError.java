@@ -40,9 +40,10 @@ public final class LangError extends RuntimeException {
 
     public void render(String src) {
         log.finer(() -> "error pos " + pos.toString());
-        if (log.getLevel() == Level.FINEST) {
+        log.finest(() -> {
             printStackTrace();
-        }
+            return "printed stack trace";
+        });
 
         var snippet = findSnippet(src);
 

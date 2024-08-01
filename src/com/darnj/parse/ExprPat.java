@@ -44,6 +44,7 @@ final class ExprPat implements Pattern {
 
                 throw new LangError(peekElse.pos(), "expected else branch while parsing");
             }
+            case TokenKind.DO -> parser.pattern(BlockPat.instance);
             default -> parser.pattern(OrPat.instance);
         };
     }
@@ -81,7 +82,8 @@ abstract class PrefixPat implements Pattern {
 
     @Override
     public Op parse(Parser parser) {
-        var op = match(parser.peek().kind());
+        var prefix = parser.peek();
+        var op = match(prefix.kind());
 
         if (op == null) {
             return operand(parser);
@@ -89,7 +91,7 @@ abstract class PrefixPat implements Pattern {
 
         parser.bump();
         var operand = parse(parser);
-        return new UnaryOpBuilder(op).build(op.pos().to(operand.pos()), operand);
+        return new UnaryOpBuilder(op).build(prefix.pos().to(operand.pos()), operand);
     }
 }
 

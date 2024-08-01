@@ -13,4 +13,9 @@ public final class NilValue extends ValueInternal {
     boolean eq(ValueInternal other) {
         return other instanceof NilValue;
     }
+
+    @Override
+    public String toString() {
+        return "nil";
+    }
 }

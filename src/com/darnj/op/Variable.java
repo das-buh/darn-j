@@ -15,10 +15,10 @@ public final class Variable extends Op implements Assignable {
     @Override
     public Value eval(Context ctx) {
         if (ctx.vars().containsKey(id)) {
-            return ctx.vars().get(id);
+            return ctx.vars().get(id).move();
         }
 
-        throw error("variable `%s` is undefined");
+        throw error(String.format("variable `%s` is undefined", ctx.symbols().resolve(id)));
     }
 
     @Override

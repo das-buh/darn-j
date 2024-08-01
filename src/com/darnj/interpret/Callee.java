@@ -22,26 +22,51 @@ public record Callee(int func, Span pos, ArrayList<Arg> args, Context ctx) {
     public LangError mismatch() {
         var format = "function `%s` is undefined for argument types (%s)";
         var types = args.stream()
-            .map(arg -> arg.value().type().name())
+            .map(arg -> arg.type().name())
             .collect(Collectors.joining(", "));
         return new LangError(pos, String.format(format, name(), types));
     }
 
-    public Value arg(int idx) {
-        var arg = args.get(idx);
-        if (arg.value().inner instanceof UndefinedValue) {
-            throw new LangError(arg.pos(), "argument cannot be type undefined");
-        }
-        return arg.value();
+    public Arg arg(int idx) {
+        return args.get(idx);
     }
 
-    public boolean bool(int idx) {
-        var arg = args.get(idx);
-        if (arg.value().inner instanceof BoolValue a) {
-            return a.value();
-        }
+    public long asInt(Arg arg) {
+        if (arg.value().inner instanceof IntValue v) return v.value();
+        else throw coerceError(arg, "int");
+    }
 
-        var format = "function `%s` expected argument type bool, but type %s was supplied"; 
-        throw new LangError(arg.pos(), String.format(format, name(), arg.value().type().name()));
+    public double asFloat(Arg arg) {
+        if (arg.value().inner instanceof FloatValue v) return v.value();
+        else throw coerceError(arg, "float");
+    }
+
+    public boolean asBool(Arg arg) {
+        if (arg.value().inner instanceof BoolValue v) return v.value();
+        else throw coerceError(arg, "bool");
+    }
+
+    public String asStr(Arg arg) {
+        if (arg.value().inner instanceof StrValue v) return v.value();
+        else throw coerceError(arg, "str");
+    }
+
+    public ArrayList<Value> asList(Arg arg) {
+        if (arg.value().inner instanceof ListValue v) return v.elems();
+        else throw coerceError(arg, "list");
+    }
+
+    public Value asRef(Arg arg) {
+        if (arg.value().inner instanceof ReferenceValue v) {
+            return v.referent();
+        } else {
+            var format = "function `%s` expected reference as argument, but type %s was supplied"; 
+            throw new LangError(arg.pos(), String.format(format, name(), arg.type().name()));
+        }
+    }
+
+    LangError coerceError(Arg arg, String type) {
+        var format = "function `%s` expected argument type %s, but type %s was supplied"; 
+        throw new LangError(arg.pos(), String.format(format, name(), type, arg.type().name()));
     }
 }

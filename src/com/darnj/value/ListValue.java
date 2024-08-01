@@ -12,7 +12,7 @@ public final class ListValue extends ValueInternal {
         this.elems = elems;
     }
 
-    public ArrayList<Value> value() {
+    public ArrayList<Value> elems() {
         return elems;
     }
 
@@ -28,5 +28,10 @@ public final class ListValue extends ValueInternal {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return elems.toString();
     }
 }

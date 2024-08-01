@@ -36,10 +36,10 @@ public final class UserFunction implements Function {
             for (var i = 0; i < arity; i++) {
                 var arg = callee.args().get(i);
                 var param = params.get(i);
-                if (!arg.value().type().eq(param.type())) {
+                if (!arg.type().eq(param.type())) {
                     var format = "function `%s` expected argument type %s, but type %s was supplied"; 
                     var paramType = param.type().name();
-                    var argType = arg.value().type().name();
+                    var argType = arg.type().name();
                     throw new LangError(arg.pos(), String.format(format, callee.name(), paramType, argType));       
                 }
 

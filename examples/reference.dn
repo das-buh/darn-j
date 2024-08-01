@@ -1,0 +1,17 @@
+a = 1
+b = 2
+a_ref = &a
+b_ref = &b
+
+*a_ref = 3
+*b_ref = 4
+print(fmt(a_ref))
+print(fmt(b_ref))
+
+swap(a_ref, b_ref)
+print(fmt(a))
+print(fmt(b))
+
+c = put(a_ref, 5)
+print(fmt(a))
+print(fmt(c))

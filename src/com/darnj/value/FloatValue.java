@@ -18,4 +18,9 @@ public final class FloatValue extends ValueInternal {
     boolean eq(ValueInternal other) {
         return other instanceof FloatValue o && value == o.value;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

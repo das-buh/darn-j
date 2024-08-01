@@ -9,7 +9,7 @@ public final class Ref extends UnaryOp {
     public Value eval(Context ctx) {
         if (operand instanceof Variable o) {
             if (ctx.vars().containsKey(o.id)) {
-                return ctx.vars().get(o.id);
+                return Value.makeReference(ctx.vars().get(o.id));
             }
 
             throw new LangError(o.pos(), "variable `%s` is undefined");

@@ -10,8 +10,4 @@ abstract class ValueInternal {
     }
 
     abstract boolean eq(ValueInternal other);
-
-    Value move() {
-        return new Value(this);
-    }
 }
