@@ -1,0 +1,11 @@
+fn factorial(n int) int do
+    assert(n >= 0)
+
+    if n == 0 do
+        return 1
+    
+    return factorial(n - 1) * n
+
+print(fmt(factorial(5)))
+print(fmt(factorial(6)))
+print(fmt(factorial(-1)))

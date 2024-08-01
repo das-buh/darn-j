@@ -1,0 +1,20 @@
+print(fmt(not true))
+print(fmt(not false))
+print(fmt(true and false))
+print(fmt(true or false))
+
+print("")
+
+print(fmt(not true or true))
+print(fmt(not (true or true)))
+print(fmt(true or false and false))
+print(fmt((true or false) and false))
+
+print("")
+
+print(fmt(true and (do
+    print("No short circuit")
+    false)))
+print(fmt(true or (do
+    print("Short circuited")
+    false)))
