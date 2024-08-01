@@ -41,7 +41,7 @@ final class ProgramPat implements Pattern {
                         case TokenKind.INDENT, TokenKind.EOF -> {
                             parser.bump();
                         }
-                        default -> throw new LangError(parser.peek().pos(), "expected newline while parsing");
+                        default -> throw new LangError(parser.peek().pos(), "expected new statement while parsing");
                     }
                     yield false;
                 }

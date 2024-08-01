@@ -1,8 +1,10 @@
 a = [1, 2, 3]
 print(fmt(a))
+print(fmt(len(a)))
 
-push(a, 4)
+push(a, "four")
 print(fmt(a))
+print(fmt(len(a)))
 
 b = a
 c = pop(b)

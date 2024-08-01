@@ -26,17 +26,24 @@ public final class Builtins {
             c.arity(1);
             var arg = c.arg(0);
             if (arg.value().inner instanceof UndefinedValue) {
-                var format = "function `%s` expected non-undefined argument, but type undefined was supplied";
-                throw new LangError(arg.pos(), String.format(format, c.name()));
+                var message = "function `fmt` expected non-undefined argument, but type undefined was supplied";
+                throw new LangError(arg.pos(), message);
             }
             return Value.makeStr(arg.value().toString());
         });
 
         fn("concat", c -> {
-            c.arity(2);
-            var left = c.asStr(c.arg(0));
-            var right = c.asStr(c.arg(1));
-            return Value.makeStr(left + right);
+            if (c.args().size() == 0) {
+                var message = "function `concat` takes 1 or more arguments, but 0 were supplied"; 
+                throw new LangError(c.pos(), message);
+            }
+
+            var str = new StringBuilder();
+            for (var arg : c.args()) {
+                var substr = c.asStr(arg);
+                str.append(substr);
+            }
+            return Value.makeStr(str.toString());
         });
 
         fn("substr", c -> {
@@ -77,6 +84,20 @@ public final class Builtins {
             return Value.makeReference(list.get((int) idx));
         });
 
+        fn("len", c -> {
+            c.arity(1);
+            var arg = c.arg(0);
+            var len = switch (arg.value().inner) {
+                case ListValue a -> a.elems().size();
+                case StrValue a -> a.value().length();
+                default -> {
+                    var format = "function `len` expected argument type str or list, but type %s was supplied";
+                    throw new LangError(arg.pos(), String.format(format, arg.type()));
+                }
+            };
+            return Value.makeInt(len);
+        });
+
         fn("swap", c -> {
             c.arity(2);
             var a = c.asRef(c.arg(0));
@@ -94,6 +115,23 @@ public final class Builtins {
             var old = dest.inner;
             dest.inner = src.inner;
             return new Value(old);
+        });
+
+        fn("assert", c -> {
+            c.arity(1);
+            var arg = c.arg(0);
+            var cond = c.asBool(arg);
+            if (!cond) {
+                throw new LangError(arg.pos(), "assertion failed");
+            }
+            return Value.makeUndefined();
+        });
+
+        fn("throw", c -> {
+            c.arity(1);
+            var arg = c.arg(0);
+            var msg = c.asStr(arg);
+            throw new LangError(arg.pos(), msg);
         });
     }
 

@@ -16,14 +16,14 @@ final class BlockPat implements Pattern {
     public Op parse(Parser parser) {
         log.finer("parse block");
         
-        var doPos = parser.peek().pos();
+        var peekDo = parser.peek();
         parser.expect(TokenKind.DO, "expected block while parsing");
 
         var peek = parser.peekRaw();
         if (peek.line() == parser.line) {
             return parser.pattern(StmtPat.instance);
         }
-        if (peek.indent() <= parser.indent) {
+        if (peek.indent() <= parser.indent || peek.indent() <= peekDo.indent()) {
             throw new LangError(peek.pos(), "expected indented block while parsing");
         }
 
@@ -51,7 +51,7 @@ final class BlockPat implements Pattern {
                         }
 
                         if (!newline.isDelim()) {
-                            throw new LangError(newline.pos(), "expected newline while parsing");
+                            throw new LangError(newline.pos(), "expected new statement while parsing");
                         }
 
                         yield false;
@@ -62,7 +62,7 @@ final class BlockPat implements Pattern {
                     continue;
                 }
 
-                return new Block(doPos.to(stmts.getLast().pos()), stmts);
+                return new Block(peekDo.pos().to(stmts.getLast().pos()), stmts);
             }
         });
 

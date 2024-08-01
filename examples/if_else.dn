@@ -1,0 +1,33 @@
+fn examples(cond bool) do
+    stmt = if cond do
+        a = 5
+        a * 2
+    else do
+        a = 10
+        a * 2
+
+    ternary_one = if cond do 10 else 20
+
+    ternary_two = if cond do 10
+        else 20
+
+    ternary_three = if cond
+        do 10
+        else 20
+    
+    ternary_stmt = if cond do
+        10
+    else
+        20
+
+    assert(stmt == ternary_one)
+    assert(ternary_one == ternary_two)
+    assert(ternary_two == ternary_three)
+    assert(ternary_three == ternary_stmt)
+
+    print(concat("Assertions passed for ", fmt(cond)))
+
+examples(true)
+examples(false)
+
+if true do print("Hi") else print("Bye")

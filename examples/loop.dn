@@ -28,7 +28,7 @@ fn fizzbuzz(n int) do
         else do
             msg = ""
         
-        print(concat(concat(fmt(i), " "), msg))
+        print(concat(fmt(i), " ", msg))
         i = i + 1
 
 range(3)
@@ -41,6 +41,3 @@ desugared_while(7)
 print("")
 
 fizzbuzz(35)
-
-# Forever...
-while true do continue

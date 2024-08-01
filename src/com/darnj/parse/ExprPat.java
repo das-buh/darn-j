@@ -36,7 +36,7 @@ final class ExprPat implements Pattern {
                 var ifBranch = parser.pattern(BlockPat.instance);
 
                 var peekElse = parser.peekRaw();
-                if (peekElse.kind() == TokenKind.ELSE && peekElse.indent() == parser.indent) {
+                if (peekElse.kind() == TokenKind.ELSE && peekElse.indent() >= parser.indent) {
                     parser.bumpRaw();
                     var elseBranch = parser.pattern(ExprPat.instance);
                     yield new IfElse(peek.pos().to(elseBranch.pos()), cond, ifBranch, elseBranch);
