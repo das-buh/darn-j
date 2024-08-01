@@ -2,8 +2,6 @@
 
 Yep, that's what it is.
 
-(im not actually sure if this works very well i didnt really debug it)
-
 - Runtime-checked static typing for function parameters and returns
     - Function parameters and returns are manifest-typed
 - Variable declaration and assignment have one syntax (Python-esque)
@@ -15,6 +13,8 @@ Yep, that's what it is.
     - `type?`, nil-able `type`, can be either `type` or `nil`
     - `type*`, reference to `type` (values, except for lists, are pass-by-value)
 - No implicit type casts (save interpreter-internal casts)
+
+(there may be bugs, i havent completely thoroughly tested it yet)
 
 Code samples:
 
