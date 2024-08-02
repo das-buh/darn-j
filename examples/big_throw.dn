@@ -1,0 +1,6 @@
+throw(concat(
+    "this ",
+    "error ",
+    "spans ",
+    "several ",
+    "lines"))
