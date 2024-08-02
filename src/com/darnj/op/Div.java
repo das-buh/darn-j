@@ -1,21 +1,12 @@
 package com.darnj.op;
 
-import com.darnj.type.*;
+import com.darnj.interpret.*;
+import com.darnj.op.arithmetic.*;
 import com.darnj.value.*;
 
-public final class Div extends NumBinOp {
+public final class Div extends ArithmeticOp {
     @Override
-    Value evalInt(long lhs, long rhs) {
-        return Value.makeInt(lhs / rhs);
-    }
-
-    @Override
-    Value evalFloat(double lhs, double rhs) {
-        return Value.makeFloat(lhs / rhs);
-    }
-
-    @Override
-    String typeMismatch(Type lhs, Type rhs) {
-        return String.format("cannot divide types %s and %s", lhs.name(), rhs.name());
+    public Value eval(Context ctx) {
+        return evalArithmetic(ctx, ArithDiv.instance);
     }
 }
