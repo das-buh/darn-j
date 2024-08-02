@@ -7,8 +7,6 @@ Yep, that's what it is.
 - No implicit type casts
 - Blocks evaluate to their last statement
 
-(there may be bugs, i havent completely thoroughly tested it yet)
-
 Code sample:
 
 ```
@@ -44,6 +42,8 @@ fn partition(xs list, i int, to int) int do
     
     return pivot
 ```
+
+(if you find any bugs feel free to tell me)
 
 Features:
 
