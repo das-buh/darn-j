@@ -40,7 +40,7 @@ Features:
         - Never annotated or instantiated by the user
 - Builtins
     - Operator precedence (greatest to least)
-        1. `()` Function calls
+        1. `()` (function call)
         2. `- * &` (unary)
         3. `* / %`
         4. `+ -`
