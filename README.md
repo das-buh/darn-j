@@ -2,6 +2,7 @@
 
 Yep, that's what it is.
 
+- Significant indentation (no tabs, spaces only)
 - Runtime-checked function types
 - No implicit type casts
 - Blocks evaluate to their last statement
@@ -76,9 +77,9 @@ my_var = 10
 # Function parameters and returns are type checked.
 # Functions cannot access outside variables.
 fn my_function(my_param int?) int do
-	# This is an if-statement.
-	# If-statements evaluate to values.
-	return if my_param != nil do my_param else 0
+    # This is an if-statement.
+    # If-statements evaluate to values.
+    return if my_param != nil do my_param else 0
 
 # Non-string values must be `fmt`'d before printing.
 foo = my_function(10)
@@ -91,9 +92,9 @@ print(concat("sum: ", fmt(sum)))
 # blocks evaluate to the value of their last statement.
 # Blocks do not define a new scope.
 thirty = do
-	foo = 10
-	bar = 20
-	foo + bar
+    foo = 10
+    bar = 20
+    foo + bar
 
 # This is an assertion.
 assert(thirty == 30)
