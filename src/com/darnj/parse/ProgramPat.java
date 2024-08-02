@@ -121,7 +121,7 @@ final class ProgramPat implements Pattern {
             case TokenKind.FLOAT -> FloatType.instance();
             case TokenKind.BOOL -> BoolType.instance();
             case TokenKind.STR -> StrType.instance();
-            case TokenKind.LIST -> StrType.instance();
+            case TokenKind.LIST -> ListType.instance();
             default -> throw new LangError(peek.pos(), "expected type while parsing");
         };
         parser.bump();

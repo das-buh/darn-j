@@ -1,0 +1,25 @@
+fn quicksort(xs list) do
+    recurse(xs, 0, len(xs))
+
+fn recurse(xs list, i int, to int) do
+    if to - i <= 1 do return
+
+    pivot = partition(xs, i, to)
+    recurse(xs, i, pivot)
+    recurse(xs, pivot + 1, to)
+
+fn partition(xs list, i int, to int) int do
+    pivot = i - 1
+
+    while i < to do
+        x = idx(xs, i)
+        if *x <= *idx(xs, to - 1) do
+            pivot = pivot + 1
+            swap(idx(xs, pivot), x)
+        i = i + 1
+    
+    return pivot
+
+xs = [17,5,2,16,9,8,5,18,15,7,17,12,10,6,16,5,14,8,3,3]
+quicksort(xs)
+assert(xs == [2,3,3,5,5,5,6,7,8,8,9,10,12,14,15,16,16,17,17,18])

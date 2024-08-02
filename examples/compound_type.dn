@@ -1,0 +1,8 @@
+fn foo(a int?) int? do
+    return bar(a)
+
+fn bar(a int?) int? do
+    return a
+
+foo(10)
+foo(nil)

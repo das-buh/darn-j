@@ -20,6 +20,30 @@ fn factorial(n int) int do
     return out
 ```
 
+```
+fn quicksort(xs list) do
+    recurse(xs, 0, len(xs))
+
+fn recurse(xs list, i int, to int) do
+    if to - i <= 1 do return
+
+    pivot = partition(xs, i, to)
+    recurse(xs, i, pivot)
+    recurse(xs, pivot + 1, to)
+
+fn partition(xs list, i int, to int) int do
+    pivot = i - 1
+
+    while i < to do
+        x = idx(xs, i)
+        if *x <= *idx(xs, to - 1) do
+            pivot = pivot + 1
+            swap(idx(xs, pivot), x)
+        i = i + 1
+    
+    return pivot
+```
+
 Features:
 
 - Types (only appear in function parameters and returns)
@@ -28,6 +52,7 @@ Features:
     - `bool`
     - `str`
     - `list`
+        - Always pass-by-reference
     - `nil` (unit type)
         - Values of type `nil` are instantiated via keyword `nil`
         - Function parameters are never type `nil`, but can be nil-able (`T?`)

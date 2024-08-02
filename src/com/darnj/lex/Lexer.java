@@ -167,7 +167,7 @@ public final class Lexer {
                         case "float" -> TokenKind.FLOAT;
                         case "bool" -> TokenKind.BOOL;
                         case "str" -> TokenKind.STR;
-                        case "list" -> TokenKind.STR;
+                        case "list" -> TokenKind.LIST;
                         case "not" -> TokenKind.NOT;
                         case "and" -> TokenKind.AND;
                         case "or" -> TokenKind.OR;
