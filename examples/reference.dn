@@ -19,3 +19,9 @@ print(fmt(c))
 a = &&&10
 ***a = 20
 print(fmt(a))
+
+fn incr(a int*, by int) do
+    *a = *a + by
+a = 10
+incr(&a, 20)
+print(fmt(a))

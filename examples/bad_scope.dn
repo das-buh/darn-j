@@ -1,0 +1,6 @@
+foo = "Hello"
+
+fn bar() do
+    print(foo) # `foo` not defined in function scope
+
+bar()
