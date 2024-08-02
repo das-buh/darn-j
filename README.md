@@ -4,6 +4,7 @@ Yep, that's what it is.
 
 - Runtime-checked function types
 - No implicit type casts
+- Blocks evaluate to their last statement
 
 (there may be bugs, i havent completely thoroughly tested it yet)
 
@@ -41,13 +42,13 @@ Features:
     - Operator precedence
         (greatest)
         Function calls
-        - * & (unary)
-        * / %
-        + -
-        == != < > <= >=
-        not (unary)
-        and
-        or
+        `- * &` (unary)
+        `* / %`
+        `+ -`
+        `== != < > <= >=`
+        `not` (unary)
+        `and`
+        `or`
         (least precedence)
     - Functions
         - `print(str)`, prints to stdout
