@@ -1,9 +1,19 @@
-fn foo(a int, b int, c int) int do
-    print(concat("a: ", fmt(a)))
-    print(concat("b: ", fmt(b)))
-    print(concat("c: ", fmt(c)))
-    return a + b * c
+a = 10
+b = &a
 
-result = foo(1, 2, 3)
-print("result:")
-print(fmt(result))
+a += 20
+assert(a == 30)
+
+*b -= 40
+assert(a == -10)
+
+a *= 50
+assert(a == -500)
+
+*b /= -10
+assert(a == 50)
+
+a %= 9
+assert(a == 5)
+
+print("okay")

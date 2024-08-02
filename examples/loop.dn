@@ -2,14 +2,14 @@ fn range(n int) do
     i = 0
     while i < n do
         print(fmt(i))
-        i = i + 1
+        i += 1
 
 fn desugared_while(n int) do
     i = 0
     while true do
         if i < n do
             print(fmt(i))
-            i = i + 1
+            i += 1
             continue
             print("Unreachable")
         else do
@@ -29,7 +29,7 @@ fn fizzbuzz(n int) do
             msg = ""
         
         print(concat(fmt(i), " ", msg))
-        i = i + 1
+        i += 1
 
 range(3)
 print("")

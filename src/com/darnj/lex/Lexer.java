@@ -194,6 +194,11 @@ public final class Lexer {
 
                 if (pos + 1 < srcLen && src.charAt(pos + 1) == '=') {
                     TokenKind digraph = switch (next) {
+                        case '+' -> TokenKind.ADD_ASSIGN;
+                        case '-' -> TokenKind.SUB_ASSIGN;
+                        case '*' -> TokenKind.MUL_ASSIGN;
+                        case '/' -> TokenKind.DIV_ASSIGN;
+                        case '%' -> TokenKind.MOD_ASSIGN;
                         case '=' -> TokenKind.EQ;
                         case '!' -> TokenKind.NEQ;
                         case '<' -> TokenKind.LTE;

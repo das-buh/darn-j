@@ -5,7 +5,11 @@ import com.darnj.op.arithmetic.*;
 import com.darnj.value.*;
 
 public abstract class ArithmeticOp extends BinaryOp {
-    public Value evalArithmetic(Context ctx, Arithmetic arithmetic) {
+    abstract Arithmetic arithmetic();
+
+    @Override
+    public Value eval(Context ctx) {
+        var arithmetic = arithmetic();
         var lhs = this.lhs.eval(ctx);
         var rhs = this.rhs.eval(ctx);
         

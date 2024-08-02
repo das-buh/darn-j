@@ -13,11 +13,12 @@ Code sample:
 
 ```
 fn factorial(n int) int do
-    out = 1
-    while n > 0 do
-        out = out * n
-        n = n - 1
-    return out
+    assert(n >= 0)
+
+    if n == 0 do
+        return 1
+    
+    return factorial(n - 1) * n
 ```
 
 ```
@@ -37,9 +38,9 @@ fn partition(xs list, i int, to int) int do
     while i < to do
         x = idx(xs, i)
         if *x <= *idx(xs, to - 1) do
-            pivot = pivot + 1
+            pivot += 1
             swap(idx(xs, pivot), x)
-        i = i + 1
+        i += 1
     
     return pivot
 ```

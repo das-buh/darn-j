@@ -1,12 +1,10 @@
 package com.darnj.op;
 
-import com.darnj.interpret.*;
 import com.darnj.op.arithmetic.*;
-import com.darnj.value.*;
 
 public final class Add extends ArithmeticOp {
     @Override
-    public Value eval(Context ctx) {
-        return evalArithmetic(ctx, ArithAdd.instance);
+    Arithmetic arithmetic() {
+        return ArithAdd.instance;
     }
 }

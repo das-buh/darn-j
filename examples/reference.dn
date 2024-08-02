@@ -5,23 +5,23 @@ b_ref = &b
 
 *a_ref = 3
 *b_ref = *a_ref + *b_ref + 4
-print(fmt(a))
-print(fmt(b))
+assert(a == 3)
+assert(b == 9)
 
 swap(a_ref, b_ref)
-print(fmt(a))
-print(fmt(b))
+assert(a == 9)
+assert(b == 3)
 
 c = put(a_ref, 5)
-print(fmt(a))
-print(fmt(c))
+assert(a == 5)
+assert(c == 9)
 
 a = &&&10
 ***a = 20
-print(fmt(a))
+assert(***a == 20)
 
 fn incr(a int*, by int) do
-    *a = *a + by
+    *a += by
 a = 10
 incr(&a, 20)
-print(fmt(a))
+assert(a == 30)

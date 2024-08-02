@@ -57,13 +57,23 @@ final class StmtPat implements Pattern {
             default -> {
                 var expr = parser.pattern(ExprPat.instance);
 
-                if (parser.peek().kind() == TokenKind.ASSIGN) {
-                    parser.bump();
-                    var assign = parser.pattern(ExprPat.instance);
-                    yield new Assign(expr.pos().to(assign.pos()), expr, assign);
+                var assign = switch (parser.peek().kind()) {
+                    case TokenKind.ASSIGN -> new Assign();
+                    case TokenKind.ADD_ASSIGN -> new AddAssign();
+                    case TokenKind.SUB_ASSIGN -> new SubAssign();
+                    case TokenKind.MUL_ASSIGN -> new MulAssign();
+                    case TokenKind.DIV_ASSIGN -> new DivAssign();
+                    case TokenKind.MOD_ASSIGN -> new ModAssign();
+                    default -> null;
+                };
+
+                if (assign == null) {
+                    yield expr;
                 }
 
-                yield expr;
+                parser.bump();
+                var value = parser.pattern(ExprPat.instance);
+                yield assign.build(expr.pos().to(value.pos()), expr, value);
             }
         };
     }

@@ -35,6 +35,12 @@ public enum TokenKind {
     MODULO,
     REF,
 
+    ADD_ASSIGN,
+    SUB_ASSIGN,
+    MUL_ASSIGN,
+    DIV_ASSIGN,
+    MOD_ASSIGN,
+
     NOT,
     AND,
     OR,

@@ -69,7 +69,7 @@ abstract class InfixPat implements Pattern {
 
             parser.bump();
             var rhs = operand(parser);
-            op = new BinaryOpBuilder(cons).build(op.pos().to(rhs.pos()), op, rhs);
+            op = cons.build(op.pos().to(rhs.pos()), op, rhs);
         }
     }
 }
@@ -91,7 +91,7 @@ abstract class PrefixPat implements Pattern {
 
         parser.bump();
         var operand = parse(parser);
-        return new UnaryOpBuilder(op).build(prefix.pos().to(operand.pos()), operand);
+        return op.build(prefix.pos().to(operand.pos()), operand);
     }
 }
 
