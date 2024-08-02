@@ -39,17 +39,15 @@ Features:
         - Returned from variable assignment or function with no return-type annotation 
         - Never annotated or instantiated by the user
 - Builtins
-    - Operator precedence
-        (greatest)
-        Function calls
-        `- * &` (unary)
-        `* / %`
-        `+ -`
-        `== != < > <= >=`
-        `not` (unary)
-        `and`
-        `or`
-        (least precedence)
+    - Operator precedence (greatest to least)
+        1. `()` Function calls
+        2. `- * &` (unary)
+        3. `* / %`
+        4. `+ -`
+        5. `== != < > <= >=`
+        6. `not` (unary)
+        7. `and`
+        8. `or`
     - Functions
         - `print(str)`, prints to stdout
         - `fmt(any) str`, formats a value into a string representation
