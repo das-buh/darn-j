@@ -1,0 +1,6 @@
+a = [1, 2, 3]
+b = idx(a, 2)
+c = pop(a)
+assert(*b == c)
+*b = 4
+assert(c == 3)

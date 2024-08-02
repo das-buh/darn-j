@@ -33,3 +33,24 @@ fn factorial(n int) int do
         n = n - 1
     return out
 ```
+
+Features:
+
+- Types (only appear in function parameters and returns)
+    - `int`
+    - `float`
+    - `bool`
+    - `str`
+    - `list`
+    - `nil` (unit type)
+        - Values of type `nil` are instantiated via keyword `nil`
+        - Function parameters are never type `nil`, but can be nil-able (`T?`)
+            - Nil-able type `T?` is a supertype of type `T` and type `nil`
+    - References (`T*`)
+        - References to variables are created via prefix `&`, ie. `&foo`
+        - References are dereferenced via prefix `*`, ie. `*foo`
+    - `undefined`
+        - Only exists interpreter-internally
+        - Returned from variable assignment or function with no return-type annotation 
+        - Never annotated or instantiated by the user
+        

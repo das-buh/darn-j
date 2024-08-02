@@ -61,7 +61,7 @@ public final class Builtins {
             c.arity(2);
             var list = c.asList(c.arg(0));
             var value = c.arg(1).value();
-            list.add(value);
+            list.add(value.move());
             return Value.makeUndefined();
         });
 
@@ -71,7 +71,7 @@ public final class Builtins {
             if (list.isEmpty()) {
                 return Value.makeNil();
             }
-            return list.removeLast();
+            return list.removeLast().move();
         });
 
         fn("idx", c -> {
