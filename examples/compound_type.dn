@@ -1,8 +1,15 @@
 fn foo(a int?) int? do
-    return bar(a)
+    return bar(&a)
 
-fn bar(a int?) int? do
-    return a
+fn bar(a int?*) int? do
+    return *a
 
 foo(10)
 foo(nil)
+
+fn compound(a int*?*?*?) do return
+
+compound(&&&10)
+compound(&&nil)
+compound(&nil)
+compound(nil)

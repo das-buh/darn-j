@@ -59,58 +59,61 @@ final class ProgramPat implements Pattern {
         var funcPos = parser.peek().pos();
         var func = parser.expectIdent();
 
+        var params = new ArrayList<Param>();
+
         parser.expect(TokenKind.PAREN_OPEN, "expected opening parenthesis while parsing");
         parser.withIndentSensitivity(false, pInner -> {
-            var params = new ArrayList<Param>();
             if (pInner.peek().kind() == TokenKind.PAREN_CLOSE) {
                 pInner.bump();
-            } else {
-                while (true) {
-                    var paramPos = pInner.peek().pos();
-                    var param = pInner.expectIdent();
+                return null;
+            }
 
-                    if (params.stream().anyMatch(p -> p.ident() == param)) {
-                        var format = "parameter `%s` is already defined";
-                        throw new LangError(paramPos, String.format(format, pInner.ctx.symbols().resolve(param)));
+            while (true) {
+                var paramPos = pInner.peek().pos();
+                var param = pInner.expectIdent();
+
+                if (params.stream().anyMatch(p -> p.ident() == param)) {
+                    var format = "parameter `%s` is already defined";
+                    throw new LangError(paramPos, String.format(format, pInner.ctx.symbols().resolve(param)));
+                }
+
+                var type = parseType(pInner);
+                params.add(new Param(param, type));
+    
+                var delim = pInner.peek();
+                var term = switch (delim.kind()) {
+                    case TokenKind.COMMA -> {
+                        pInner.bump();
+                        yield false;
                     }
-
-                    var type = parseType(pInner);
-                    params.add(new Param(param, type));
-        
-                    var delim = pInner.peek();
-                    var term = switch (delim.kind()) {
-                        case TokenKind.COMMA -> {
-                            pInner.bump();
-                            yield false;
-                        }
-                        case TokenKind.PAREN_CLOSE -> {
-                            pInner.bump();
-                            yield true;
-                        }
-                        default -> throw new LangError(delim.pos(), "expected closing parenthesis while parsing");
-                    };
-
-                    if (term) {
-                        break;
+                    case TokenKind.PAREN_CLOSE -> {
+                        pInner.bump();
+                        yield true;
                     }
+                    default -> throw new LangError(delim.pos(), "expected closing parenthesis while parsing");
+                };
+
+                if (term) {
+                    break;
                 }
             }
 
-            var returnType = switch (pInner.peek().kind()) {
-                case TokenKind.DO -> UndefinedType.instance();
-                default -> parseType(pInner);
-            };
-
-            var body = pInner.pattern(BlockPat.instance);
-
-            var funcs = pInner.ctx.funcs();
-            if (funcs.containsKey(func)) {
-                throw new LangError(funcPos, "function `" + pInner.ctx.symbols().resolve(func) + "` is already defined");
-            }
-
-            funcs.put(func, new UserFunction(func, funcPos, params, returnType, body));
             return null;
         });
+
+        var returnType = switch (parser.peek().kind()) {
+            case TokenKind.DO -> UndefinedType.instance();
+            default -> parseType(parser);
+        };
+
+        var body = parser.pattern(BlockPat.instance);
+
+        var funcs = parser.ctx.funcs();
+        if (funcs.containsKey(func)) {
+            throw new LangError(funcPos, "function `" + parser.ctx.symbols().resolve(func) + "` is already defined");
+        }
+
+        funcs.put(func, new UserFunction(func, funcPos, params, returnType, body));
     }
     
     static Type parseType(Parser parser) {
