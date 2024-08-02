@@ -20,10 +20,7 @@ final class BlockPat implements Pattern {
         parser.expect(TokenKind.DO, "expected block while parsing");
 
         var peek = parser.peekRaw();
-        log.fine("guh");
         if (peek.line() == parser.line) {
-            log.fine("hi");
-            log.fine(String.valueOf(parser.inIndentSensitiveMode));
             return parser.pattern(StmtPat.instance);
         }
         if (peek.indent() <= parser.indent || peek.indent() <= peekDo.indent()) {
