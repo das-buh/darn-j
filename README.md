@@ -2,28 +2,12 @@
 
 Yep, that's what it is.
 
-- Runtime-checked static typing for function parameters and returns
-    - Function parameters and returns are manifest-typed
-- Variable declaration and assignment have one syntax (Python-esque)
-- All variables are function-scoped; functions cannot access variables outside their scope
-    - Function declarations must be in global scope
-- Strings are immutable and non-resizeable
-- Nil-able types must be marked with `?`
-- Compound types include:
-    - `type?`, nil-able `type`, can be either `type` or `nil`
-    - `type*`, reference to `type` (values, except for lists, are pass-by-value)
-- No implicit type casts (save interpreter-internal casts)
+- Runtime-checked function types
+- No implicit type casts
 
 (there may be bugs, i havent completely thoroughly tested it yet)
 
-Code samples:
-
-```
-foo = 10
-bar = &foo
-*bar = *bar + 20
-baz = *bar // baz = 30
-```
+Code sample:
 
 ```
 fn factorial(n int) int do
@@ -53,4 +37,65 @@ Features:
         - Only exists interpreter-internally
         - Returned from variable assignment or function with no return-type annotation 
         - Never annotated or instantiated by the user
-        
+- Builtins
+    - Operator precedence
+        (greatest)
+        Function calls
+        - * & (unary)
+        * / %
+        + -
+        == != < > <= >=
+        not (unary)
+        and
+        or
+        (least precedence)
+    - Functions
+        - `print(str)`, prints to stdout
+        - `fmt(any) str`, formats a value into a string representation
+	        - For strings, this adds delimiting `"` to the string
+	        - Panics if supplied type `undefined`
+		- `concat(str, ...) str`, concatenates one or more strings
+		- `substr(str, int, int) str?`, gets a substring between two indices from a string
+		- `push(list, any)`, pushes a value to the end of a list
+		- `pop(list) any`, pops a value from the end of a list
+		- `idx(list, int) any*?`, indexes into a list and returns a reference to the element
+		- `len(list) int`, `len(str) int`, gets the length of a list or string
+		- `swap(any*, any*)`, swaps the referent values of two references
+		- `put(any*, any) any`, sets the referent value of a reference and returns the old referent value
+		- `assert(bool)`, panics if the argument is `false`
+		- `throw(str)`, panics with the argument string as the error message
+
+```
+# This is a comment.
+
+# This is a variable assignment.
+# Assignment to an uninitialized variable is declaration.
+# Variables are not type checked.
+my_var = 10
+
+# This is a function.
+# Function parameters and returns are type checked.
+# Functions cannot access outside variables.
+fn my_function(my_param int?) int do
+	# This is an if-statement.
+	# If-statements evaluate to values.
+	return if my_param != nil do my_param else 0
+
+# Non-string values must be `fmt`'d before printing.
+foo = my_function(10)
+bar = my_function(nil)
+sum = foo + bar
+print(concat("sum: ", fmt(sum)))
+
+# This is a do-block.
+# Unless they are the body of a function,
+# blocks evaluate to the value of their last statement.
+# Blocks do not define a new scope.
+thirty = do
+	foo = 10
+	bar = 20
+	foo + bar
+
+# This is an assertion.
+assert(thirty == 30)
+```
