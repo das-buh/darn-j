@@ -36,7 +36,7 @@ public final class Parser {
     public static Op parse(String src, Context ctx) {
         var parser = new Parser(src, ctx);
         log.fine("parse");
-        var program = parser.pattern(ProgramPat.instance);
+        var program = ProgramPat.instance.parse(parser);
         log.fine("parse done");
         return program;
     }
@@ -95,29 +95,19 @@ public final class Parser {
         return ctx.symbols().intern(ident);
     }
 
-    Op pattern(Pattern pattern) {
-        return pattern.parse(this);
-    }
-
     // Expects one or more comma-separated patterns.
-    ArrayList<Op> commaSeparated(Pattern pattern) {
-        var items = new ArrayList<Op>();
+    <T> ArrayList<T> commaSeparated(Pattern<T> pattern) {
+        var items = new ArrayList<T>();
 
         while (true) {
-            var elem = pattern(pattern);
+            var elem = pattern.parse(this);
             items.add(elem);
 
-            var term = switch (peek().kind()) {
-                case TokenKind.COMMA -> {
-                    bump();
-                    yield false;
-                }
-                default -> true;
-            };
-
-            if (term) {
+            if (peek().kind() != TokenKind.COMMA) {
                 return items;
             }
+
+            bump();
         }
     }
 

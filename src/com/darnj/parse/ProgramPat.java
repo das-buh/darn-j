@@ -10,10 +10,10 @@ import com.darnj.lex.*;
 import com.darnj.op.*;
 import com.darnj.type.*;
 
-final class ProgramPat implements Pattern {
+final class ProgramPat implements Pattern<Op> {
     private static Logger log = Logger.getGlobal();
 
-    static ProgramPat instance = new ProgramPat();
+    static final ProgramPat instance = new ProgramPat();
 
     @Override
     public Op parse(Parser parser) {
@@ -22,78 +22,63 @@ final class ProgramPat implements Pattern {
         var stmts = new ArrayList<Op>();
 
         while (true) {
-            var term = switch (parser.peek().kind()) {
+            if (parser.peek().kind() == TokenKind.EOF) {
+                parser.expect(TokenKind.EOF, "expected end of input while parsing");
+                return new Block(new Span(0, parser.src.length()), stmts);
+            }
+
+            switch (parser.peek().kind()) {
                 case TokenKind.FN -> {
                     parser.bump();
                     parseFunction(parser);
-                    yield false;
                 }
                 case TokenKind.INDENT -> {
                     parser.bump();
-                    yield false;
                 }
-                case TokenKind.EOF -> true;
                 default -> {
-                    var stmt = parser.pattern(StmtPat.instance);
+                    var stmt = StmtPat.instance.parse(parser);
                     stmts.add(stmt);
 
-                    switch (parser.peek().kind()) {
-                        case TokenKind.INDENT, TokenKind.EOF -> {
-                            parser.bump();
-                        }
-                        default -> throw new LangError(parser.peek().pos(), "expected new statement while parsing");
+                    if (!parser.peek().isDelim()) {
+                        throw new LangError(parser.peek().pos(), "expected new statement while parsing");
                     }
-                    yield false;
                 }
-            };
-
-            if (term) {
-                parser.expect(TokenKind.EOF, "expected end of input while parsing");
-                return new Block(new Span(0, parser.src.length()), stmts);
             }
         }
     }
 
-    // Returns null if parsed a function declaration.
-    void parseFunction(Parser parser) {
+    private void parseFunction(Parser parser) {
         var funcPos = parser.peek().pos();
-        var func = parser.expectIdent();
-
-        var params = new ArrayList<Param>();
-
+        var funcName = parser.expectIdent();
+        
+        ArrayList<Param> params;
         parser.expect(TokenKind.PAREN_OPEN, "expected opening parenthesis while parsing");
         try (var indentHandler = parser.new IndentSensitivityHandler(false)) {
-            if (parser.peek().kind() == TokenKind.PAREN_CLOSE) {
-                parser.bump();
-            } else {
-                while (true) {
-                    var paramPos = parser.peek().pos();
-                    var param = parser.expectIdent();
-    
-                    if (params.stream().anyMatch(p -> p.ident() == param)) {
-                        var format = "parameter `%s` is already defined";
-                        throw new LangError(paramPos, String.format(format, parser.ctx.symbols().resolve(param)));
-                    }
-    
-                    var type = parseType(parser);
-                    params.add(new Param(param, type));
-        
-                    var delim = parser.peek();
-                    var term = switch (delim.kind()) {
-                        case TokenKind.COMMA -> {
-                            parser.bump();
-                            yield false;
-                        }
-                        case TokenKind.PAREN_CLOSE -> {
-                            parser.bump();
-                            yield true;
-                        }
-                        default -> throw new LangError(delim.pos(), "expected closing parenthesis while parsing");
-                    };
-    
-                    if (term) {
-                        break;
-                    }
+            params = switch (parser.peek().kind()) {
+                case TokenKind.PAREN_CLOSE -> {
+                    parser.bump();
+                    yield new ArrayList<>();
+                }
+                default -> {
+                    var paramsList = parser.commaSeparated(p -> {
+                        var paramPos = p.peek().pos();
+                        var paramName = p.expectIdent();
+                        var paramType = parseType(p);
+                        return new Param(paramPos, paramName, paramType);
+                    });
+                    parser.expect(TokenKind.PAREN_CLOSE, "expected closing parenthesis while parsing");
+                    yield paramsList;
+                }
+            };
+        }
+
+        var paramCount = params.size();
+        for (var i = 0; i < paramCount; i++) {
+            var param = params.get(i);
+            for (var j = 0; j < i; j++) {
+                if (params.get(j).ident() == param.ident()) {
+                    var format = "parameter `%s` is already defined";
+                    throw new LangError(param.pos(), String.format(format, parser.ctx.symbols().resolve(param.ident())));
                 }
             }
         }
@@ -103,17 +88,17 @@ final class ProgramPat implements Pattern {
             default -> parseType(parser);
         };
 
-        var body = parser.pattern(BlockPat.instance);
+        var body = BlockPat.instance.parse(parser);
 
         var funcs = parser.ctx.funcs();
-        if (funcs.containsKey(func)) {
-            throw new LangError(funcPos, "function `" + parser.ctx.symbols().resolve(func) + "` is already defined");
+        if (funcs.containsKey(funcName)) {
+            throw new LangError(funcPos, "function `" + parser.ctx.symbols().resolve(funcName) + "` is already defined");
         }
 
-        funcs.put(func, new UserFunction(func, funcPos, params, returnType, body));
+        funcs.put(funcName, new UserFunction(funcName, funcPos, params, returnType, body));
     }
     
-    static Type parseType(Parser parser) {
+    private Type parseType(Parser parser) {
         var peek = parser.peek();
         
         var type = switch (peek.kind()) {

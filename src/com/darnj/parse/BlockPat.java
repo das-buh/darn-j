@@ -7,63 +7,48 @@ import com.darnj.LangError;
 import com.darnj.lex.*;
 import com.darnj.op.*;
 
-final class BlockPat implements Pattern {
+final class BlockPat implements Pattern<Op> {
     private static Logger log = Logger.getGlobal();
 
-    static BlockPat instance = new BlockPat();
+    static final BlockPat instance = new BlockPat();
 
     @Override
     public Op parse(Parser parser) {
         log.finer("parse block");
         
-        var peekDo = parser.peek();
+        var doToken = parser.peek();
         parser.expect(TokenKind.DO, "expected block while parsing");
 
-        var peek = parser.peekRaw();
-        if (peek.line() == parser.line) {
-            return parser.pattern(StmtPat.instance);
+        var blockStart = parser.peekRaw();
+        if (blockStart.line() == parser.line) {
+            return StmtPat.instance.parse(parser);
         }
-        if (peek.indent() <= parser.indent || peek.indent() <= peekDo.indent()) {
-            throw new LangError(peek.pos(), "expected indented block while parsing");
+        if (blockStart.indent() <= parser.indent || blockStart.indent() <= doToken.indent()) {
+            throw new LangError(blockStart.pos(), "expected indented block while parsing");
         }
 
-        var indentOld = parser.indent;
-        parser.indent = peek.indent();
-        parser.line = peek.line();
+        var oldIndent = parser.indent;
+        parser.indent = blockStart.indent();
+        parser.line = blockStart.line();
 
         try (var indentHandler = parser.new IndentSensitivityHandler(true)) {
             var stmts = new ArrayList<Op>();
             
             while (true) {
-                var cont = switch (parser.peek().kind()) {
-                    case TokenKind.INDENT -> {
-                        yield parser.peek().indent() == parser.indent;
-                    }
-                    case TokenKind.EOF -> false;
-                    default -> {
-                        var stmt = parser.pattern(StmtPat.instance);
-                        stmts.add(stmt);
+                stmts.add(StmtPat.instance.parse(parser));
 
-                        var newline = parser.peek();
-                        if (newline.kind() == TokenKind.INDENT && newline.indent() == parser.indent) {
-                            parser.bump();
-                            yield true;
-                        }
+                var newline = parser.peek();
 
-                        if (!newline.isDelim()) {
-                            throw new LangError(newline.pos(), "expected new statement while parsing");
-                        }
-
-                        yield false;
-                    }
-                };
-
-                if (cont) {
+                if (!newline.isDelim()) {
+                    throw new LangError(newline.pos(), "expected new statement while parsing");
+                }
+                if (newline.kind() == TokenKind.INDENT && newline.indent() == parser.indent) {
+                    parser.bump();
                     continue;
                 }
 
-                parser.indent = indentOld;
-                return new Block(peekDo.pos().to(stmts.getLast().pos()), stmts);
+                parser.indent = oldIndent;
+                return new Block(doToken.pos().to(stmts.getLast().pos()), stmts);
             }
         }
     }

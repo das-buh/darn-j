@@ -26,8 +26,8 @@ Error: function `foo` expected type int but got type str
 public final class LangError extends RuntimeException {
     private static Logger log = Logger.getGlobal();
 
-    Span pos;
-    String message;
+    final Span pos;
+    final String message;
 
     int line;
     int column;
