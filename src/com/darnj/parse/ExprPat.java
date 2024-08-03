@@ -53,7 +53,6 @@ final class ExprPat implements Pattern<Op> {
 abstract class InfixPat implements Pattern<Op> {
     abstract Pattern<Op> operand();
     
-    // TODO check if nullable allowed
     // Returns null if no operator is matched.
     abstract BinaryOp match(TokenKind op);
 
