@@ -33,7 +33,7 @@ public final class Builtins {
         });
 
         fn("concat", c -> {
-            if (c.args().size() == 0) {
+            if (c.args().isEmpty()) {
                 var message = "function `concat` takes 1 or more arguments, but 0 were supplied"; 
                 throw new LangError(c.pos(), message);
             }

@@ -6,10 +6,10 @@ import com.darnj.LangError;
 import com.darnj.Span;
 
 public final class Lexer {
-    private static Logger log = Logger.getGlobal();
+    private static final Logger log = Logger.getGlobal();
 
-    private String src;
-    private int srcLen;
+    private final String src;
+    private final int srcLen;
 
     private int pos;
     private int indent;
@@ -113,9 +113,7 @@ public final class Lexer {
                             }
 
                             yield switch (src.charAt(pos)) {
-                                case '"' | 'n' | 't' | '0' -> {
-                                    yield false;
-                                }
+                                case '"' | 'n' | 't' | '0' -> false;
                                 default -> throw new LangError(pos(), "invalid escape character");
                             };
                         }

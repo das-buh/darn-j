@@ -2,7 +2,7 @@ package com.darnj.value;
 
 import com.darnj.type.*;
 
-abstract class ValueInternal {
+public abstract class ValueInternal {
     Type type;
 
     ValueInternal(Type type) {

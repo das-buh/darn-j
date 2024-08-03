@@ -10,7 +10,7 @@ import com.darnj.lex.*;
 import com.darnj.op.*;
 
 public final class Parser {
-    private static Logger log = Logger.getGlobal();
+    private static final Logger log = Logger.getGlobal();
 
     final String src;
 
@@ -112,7 +112,7 @@ public final class Parser {
     }
 
     class IndentSensitivityHandler implements AutoCloseable {
-        private boolean oldIndentMode;
+        private final boolean oldIndentMode;
 
         IndentSensitivityHandler(boolean newIndentMode) {
             oldIndentMode = inIndentMode;

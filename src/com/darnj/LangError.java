@@ -24,7 +24,7 @@ Error: function `foo` expected type int but got type str
 */
 
 public final class LangError extends RuntimeException {
-    private static Logger log = Logger.getGlobal();
+    private static final Logger log = Logger.getGlobal();
 
     final Span pos;
     final String message;
@@ -48,11 +48,11 @@ public final class LangError extends RuntimeException {
         var snippet = findSnippet(src);
 
         System.out.println("Error: " + message);
-        System.out.println(String.format("  + at line %d, column %d", line + 1, column + 1));
+        System.out.printf("  + at line %d, column %d%n", line + 1, column + 1);
         System.out.println("  |");
 
         if (snippet.size() == 1) {
-            renderLine(snippet.get(0));
+            renderLine(snippet.getFirst());
         } else {
             renderMultiline(snippet);
         }
@@ -94,7 +94,7 @@ public final class LangError extends RuntimeException {
                 snipLine = true;
                 underline = column;
             }
-            
+
             if (i == end) {
                 snipping = false;
             }
@@ -108,7 +108,7 @@ public final class LangError extends RuntimeException {
                     snippet.add(src.substring(lineStart, i));
                     snipLine = snipping;
                 }
-                
+
                 if (lookingForSnippet) {
                     line++;
                     column = 0;
@@ -116,10 +116,6 @@ public final class LangError extends RuntimeException {
 
                 lineStart = i + 1;
             }
-        }
-
-        if (i == end) {
-            snipping = false;
         }
 
         if (i == start) {
