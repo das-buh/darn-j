@@ -99,28 +99,6 @@ public final class Parser {
         return pattern.parse(this);
     }
 
-    // Op withIndentSensitivity(boolean sensitivity, Pattern pattern) {
-    //     var prev = inIndentMode;
-    //     inIndentMode = sensitivity;
-    //     var op = pattern(pattern);
-    //     inIndentMode = prev;
-    //     return op;
-    // }
-
-    protected class IndentSensitivityHandler implements AutoCloseable {
-        private boolean oldIndentMode;
-
-        protected IndentSensitivityHandler(boolean newIndentMode) {
-            oldIndentMode = inIndentMode;
-            inIndentMode = newIndentMode;
-        }
-
-        @Override
-        public void close() {
-            inIndentMode = oldIndentMode;
-        }
-    }
-
     // Expects one or more comma-separated patterns.
     ArrayList<Op> commaSeparated(Pattern pattern) {
         var items = new ArrayList<Op>();
@@ -140,6 +118,20 @@ public final class Parser {
             if (term) {
                 return items;
             }
+        }
+    }
+
+    protected class IndentSensitivityHandler implements AutoCloseable {
+        private boolean oldIndentMode;
+
+        protected IndentSensitivityHandler(boolean newIndentMode) {
+            oldIndentMode = inIndentMode;
+            inIndentMode = newIndentMode;
+        }
+
+        @Override
+        public void close() {
+            inIndentMode = oldIndentMode;
         }
     }
 }
