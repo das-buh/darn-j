@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public final class Interner {
-    HashMap<String, Integer> map;
-    ArrayList<String> strings;
+    private HashMap<String, Integer> map;
+    private ArrayList<String> strings;
 
     public Interner() {
         this.map = new HashMap<>();

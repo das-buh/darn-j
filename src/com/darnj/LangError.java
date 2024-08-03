@@ -29,9 +29,9 @@ public final class LangError extends RuntimeException {
     final Span pos;
     final String message;
 
-    int line;
-    int column;
-    int underline; // Undefined if multiline.
+    private int line;
+    private int column;
+    private int underline; // Undefined if multiline.
 
     public LangError(Span pos, String message) {
         this.pos = pos;
@@ -58,20 +58,20 @@ public final class LangError extends RuntimeException {
         }
     }
 
-    void renderLine(String line) {
+    private void renderLine(String line) {
         var len = pos.end() - pos.start();
         System.out.println("  | " + line);
         System.out.println("  | " + " ".repeat(underline) + "^".repeat(len > 0 ? len : 1));
     }
 
-    void renderMultiline(ArrayList<String> snippet) {
+    private void renderMultiline(ArrayList<String> snippet) {
         for (var line : snippet) {
             System.out.println("  > " + line);
         }
         System.out.println("  | ");
     }
 
-    ArrayList<String> findSnippet(String src) {
+    private ArrayList<String> findSnippet(String src) {
         line = 0;
         column = 0;
         underline = 0;
