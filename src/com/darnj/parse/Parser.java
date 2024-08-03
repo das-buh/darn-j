@@ -121,10 +121,10 @@ public final class Parser {
         }
     }
 
-    protected class IndentSensitivityHandler implements AutoCloseable {
+    class IndentSensitivityHandler implements AutoCloseable {
         private boolean oldIndentMode;
 
-        protected IndentSensitivityHandler(boolean newIndentMode) {
+        IndentSensitivityHandler(boolean newIndentMode) {
             oldIndentMode = inIndentMode;
             inIndentMode = newIndentMode;
         }
