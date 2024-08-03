@@ -40,7 +40,7 @@ public final class UserFunction implements Function {
                     var format = "function `%s` expected argument type %s, but type %s was supplied"; 
                     var paramType = param.type().name();
                     var argType = arg.type().name();
-                    throw new LangError(arg.pos(), String.format(format, callee.name(), paramType, argType));       
+                    throw new LangError(arg.pos(), format, callee.name(), paramType, argType);
                 }
 
                 scope.put(param.ident(), arg.value());
@@ -50,7 +50,7 @@ public final class UserFunction implements Function {
 
             if (!returnType.eq(UndefinedType.instance())) {
                 var format = "function `%s` marks return as type %s, but implicitly returns type undefined";
-                throw new LangError(pos, String.format(format, callee.name(), returnType.name()));
+                throw new LangError(pos, format, callee.name(), returnType.name());
             }
             return Value.makeUndefined();
         } catch (Continue.Effect e) {
@@ -60,7 +60,7 @@ public final class UserFunction implements Function {
         } catch (Return.Effect e) {
             if (!e.value().type().eq(returnType)) {
                 var format = "function `%s` marks return as type %s, but actually returns type %s";
-                throw new LangError(e.pos(), String.format(format, callee.name(), returnType.name(), e.value().type().name()));
+                throw new LangError(e.pos(), format, callee.name(), returnType.name(), e.value().type().name());
             }
             return e.value();
         } finally {

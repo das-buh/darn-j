@@ -20,9 +20,9 @@ public abstract class ShortCircuitOp extends BinaryOp {
                 return Value.makeBool(r.value());
             }
             
-            throw error(String.format("cannot %s types %s and %s", opName(), lhs.type().name(), rhs.type().name()));
+            throw error("cannot %s types %s and %s", opName(), lhs.type().name(), rhs.type().name());
         }
 
-        throw error(String.format("cannot %s type %s", opName(), lhs.type().name()));
+        throw error("cannot %s type %s", opName(), lhs.type().name());
     }
 }

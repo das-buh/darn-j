@@ -18,6 +18,6 @@ public final class Variable extends Op {
             return ctx.vars().get(id).move();
         }
 
-        throw error(String.format("variable `%s` is undefined", ctx.symbols().resolve(id)));
+        throw error("variable `%s` is undefined", ctx.symbols().resolve(id));
     }
 }

@@ -15,6 +15,6 @@ public final class Deref extends UnaryOp {
             return o.referent();
         }
 
-        throw error(String.format("cannot dereference type %s", operand.type().name()));
+        throw error("cannot dereference type %s", operand.type().name());
     }
 }

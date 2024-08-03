@@ -78,7 +78,7 @@ final class ProgramPat implements Pattern<Op> {
             for (var j = 0; j < i; j++) {
                 if (params.get(j).ident() == param.ident()) {
                     var format = "parameter `%s` is already defined";
-                    throw new LangError(param.pos(), String.format(format, parser.ctx.symbols().resolve(param.ident())));
+                    throw new LangError(param.pos(), format, parser.ctx.symbols().resolve(param.ident()));
                 }
             }
         }

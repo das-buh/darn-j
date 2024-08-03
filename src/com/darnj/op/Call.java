@@ -30,6 +30,6 @@ public final class Call extends Op {
             return func.eval(callee);
         }
 
-        throw error(String.format("function `%s` is undefined", ctx.symbols().resolve(func)));
+        throw error("function `%s` is undefined", ctx.symbols().resolve(func));
     }
 }

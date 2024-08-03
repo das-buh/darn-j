@@ -92,7 +92,7 @@ public final class Builtins {
                 case StrValue a -> a.value().length();
                 default -> {
                     var format = "function `len` expected argument type str or list, but type %s was supplied";
-                    throw new LangError(arg.pos(), String.format(format, arg.type()));
+                    throw new LangError(arg.pos(), format, arg.type());
                 }
             };
             return Value.makeInt(len);

@@ -10,7 +10,7 @@ public final class Neg extends UnaryOp {
         return switch (operand.inner) {
             case IntValue o -> Value.makeInt(-o.value());
             case FloatValue o -> Value.makeFloat(-o.value());
-            default -> throw error(String.format("cannot negate type %s", operand.type().name()));
+            default -> throw error("cannot negate type %s", operand.type().name());
         };
         
     }

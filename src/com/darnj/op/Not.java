@@ -11,6 +11,6 @@ public final class Not extends UnaryOp {
             return Value.makeBool(!o.value());
         }
         
-        throw error(String.format("cannot logical-not type %s", operand.type().name()));
+        throw error("cannot logical-not type %s", operand.type().name());
     }
 }

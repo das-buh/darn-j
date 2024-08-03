@@ -18,12 +18,12 @@ public abstract class ArithmeticOp extends BinaryOp {
         } else if (lhs.inner instanceof FloatValue l && rhs.inner instanceof FloatValue r) {
             return arithmetic.evalFloat(l.value(), r.value());
         } else {
-            throw error(String.format(
+            throw error(
                 "cannot %s types %s and %s", 
                 arithmetic.opName(),
                 lhs.type().name(), 
                 rhs.type().name()
-            ));
+            );
         }
     }
 }

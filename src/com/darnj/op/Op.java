@@ -21,4 +21,8 @@ public abstract class Op {
     LangError error(String message) { 
         return new LangError(pos, message);
     }
+
+    LangError error(String format, Object... values) {
+        return new LangError(pos, String.format(format, values));
+    }
 }

@@ -18,6 +18,6 @@ public abstract class EqualityOp extends BinaryOp {
         }
         
         var format = "cannot check equality of types %s and %s";
-        throw error(String.format(format, lhs.type().name(), rhs.type().name()));
+        throw error(format, lhs.type().name(), rhs.type().name());
     }
 }

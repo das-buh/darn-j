@@ -38,6 +38,11 @@ public final class LangError extends RuntimeException {
         this.message = message;
     }
 
+    public LangError(Span pos, String format, Object... values) {
+        this.pos = pos;
+        message = String.format(format, values);
+    }
+
     public void render(String src) {
         log.finer(() -> "error pos " + pos.toString());
         log.finest(() -> {

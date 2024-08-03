@@ -15,7 +15,7 @@ public record Callee(int func, Span pos, ArrayList<Arg> args, Context ctx) {
     public void arity(int arity) {
         if (args.size() != arity) {
             var format = "function `%s` takes %d arguments, but %d were supplied"; 
-            throw new LangError(pos, String.format(format, name(), arity, args.size()));
+            throw new LangError(pos, format, name(), arity, args.size());
         }
     }
 
@@ -24,7 +24,7 @@ public record Callee(int func, Span pos, ArrayList<Arg> args, Context ctx) {
         var types = args.stream()
             .map(arg -> arg.type().name())
             .collect(Collectors.joining(", "));
-        return new LangError(pos, String.format(format, name(), types));
+        return new LangError(pos, format, name(), types);
     }
 
     public Arg arg(int idx) {
@@ -61,12 +61,12 @@ public record Callee(int func, Span pos, ArrayList<Arg> args, Context ctx) {
             return v.referent();
         } else {
             var format = "function `%s` expected reference as argument, but type %s was supplied"; 
-            throw new LangError(arg.pos(), String.format(format, name(), arg.type().name()));
+            throw new LangError(arg.pos(), format, name(), arg.type().name());
         }
     }
 
     LangError coerceError(Arg arg, String type) {
         var format = "function `%s` expected argument type %s, but type %s was supplied"; 
-        throw new LangError(arg.pos(), String.format(format, name(), type, arg.type().name()));
+        throw new LangError(arg.pos(), format, name(), type, arg.type().name());
     }
 }
