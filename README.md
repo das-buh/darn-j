@@ -44,7 +44,6 @@ fn partition(xs list, i int, to int) int do
 ```
 
 (if you find any bugs feel free to tell me)
-(id like to say im not done refactoring this its kind of spaghetti)
 
 Features:
 
