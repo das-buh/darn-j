@@ -8,17 +8,15 @@ import com.darnj.Span;
 public final class Lexer {
     private static Logger log = Logger.getGlobal();
 
-    String src;
-    int srcLen;
+    private String src;
+    private int srcLen;
 
-    int pos;
-    int indent;
-    int line;
-    boolean inIndentMode;
+    private int pos;
+    private int indent;
+    private int line;
+    private boolean inIndentMode;
 
-    static final int LOOKAHEAD = 2;
-    static final int LOOKAHEAD_MINUS_ONE = LOOKAHEAD - 1;
-    Token lookahead;
+    private Token lookahead;
 
     public Lexer(String src) {
         this.src = src;
@@ -46,23 +44,23 @@ public final class Lexer {
         return lookahead;
     }
 
-    Span pos() {
+    private Span pos() {
         return new Span(pos, pos);
     }
 
     // Returns null if a non-significant token was lexed.
-    Token lex() {
+    private Token lex() {
         log.finest("lex");
 
         if (pos == srcLen) {
-            return new Token(new Span(pos, pos), 0, line + 1, TokenKind.EOF);
+            return new Token(new Span(pos, pos), 0, line + 1, Token.Kind.EOF);
         }
 
         var start = pos;
         var next = src.charAt(pos);
 
         // Evaluates to null if a non-significant token was lexed.
-        TokenKind kind = switch (next) {
+        Token.Kind kind = switch (next) {
             case ' ' -> {
                 if (inIndentMode) {
                     indent++;
@@ -137,7 +135,7 @@ public final class Lexer {
                 }
 
                 pos++;
-                yield TokenKind.STR_LITERAL;
+                yield Token.Kind.STR_LITERAL;
             }
             default -> {
                 inIndentMode = false;
@@ -152,26 +150,26 @@ public final class Lexer {
                     }
 
                     yield switch (src.substring(start, pos)) {
-                        case "true" -> TokenKind.TRUE;
-                        case "false" -> TokenKind.FALSE;
-                        case "nil" -> TokenKind.NIL;
-                        case "if" -> TokenKind.IF;
-                        case "else" -> TokenKind.ELSE;
-                        case "while" -> TokenKind.WHILE;
-                        case "continue" -> TokenKind.CONTINUE;
-                        case "break" -> TokenKind.BREAK;
-                        case "return" -> TokenKind.RETURN;
-                        case "do" -> TokenKind.DO;
-                        case "fn" -> TokenKind.FN;
-                        case "int" -> TokenKind.INT;
-                        case "float" -> TokenKind.FLOAT;
-                        case "bool" -> TokenKind.BOOL;
-                        case "str" -> TokenKind.STR;
-                        case "list" -> TokenKind.LIST;
-                        case "not" -> TokenKind.NOT;
-                        case "and" -> TokenKind.AND;
-                        case "or" -> TokenKind.OR;
-                        default -> TokenKind.IDENT;
+                        case "true" -> Token.Kind.TRUE;
+                        case "false" -> Token.Kind.FALSE;
+                        case "nil" -> Token.Kind.NIL;
+                        case "if" -> Token.Kind.IF;
+                        case "else" -> Token.Kind.ELSE;
+                        case "while" -> Token.Kind.WHILE;
+                        case "continue" -> Token.Kind.CONTINUE;
+                        case "break" -> Token.Kind.BREAK;
+                        case "return" -> Token.Kind.RETURN;
+                        case "do" -> Token.Kind.DO;
+                        case "fn" -> Token.Kind.FN;
+                        case "int" -> Token.Kind.INT;
+                        case "float" -> Token.Kind.FLOAT;
+                        case "bool" -> Token.Kind.BOOL;
+                        case "str" -> Token.Kind.STR;
+                        case "list" -> Token.Kind.LIST;
+                        case "not" -> Token.Kind.NOT;
+                        case "and" -> Token.Kind.AND;
+                        case "or" -> Token.Kind.OR;
+                        default -> Token.Kind.IDENT;
                     };
                 }
 
@@ -186,23 +184,23 @@ public final class Lexer {
                             pos++;
                         }
 
-                        yield TokenKind.FLOAT_LITERAL;
+                        yield Token.Kind.FLOAT_LITERAL;
                     } else {
-                        yield TokenKind.INT_LITERAL;
+                        yield Token.Kind.INT_LITERAL;
                     }
                 }
 
                 if (pos + 1 < srcLen && src.charAt(pos + 1) == '=') {
-                    TokenKind digraph = switch (next) {
-                        case '+' -> TokenKind.ADD_ASSIGN;
-                        case '-' -> TokenKind.SUB_ASSIGN;
-                        case '*' -> TokenKind.MUL_ASSIGN;
-                        case '/' -> TokenKind.DIV_ASSIGN;
-                        case '%' -> TokenKind.MOD_ASSIGN;
-                        case '=' -> TokenKind.EQ;
-                        case '!' -> TokenKind.NEQ;
-                        case '<' -> TokenKind.LTE;
-                        case '>' -> TokenKind.GTE;
+                    Token.Kind digraph = switch (next) {
+                        case '+' -> Token.Kind.ADD_ASSIGN;
+                        case '-' -> Token.Kind.SUB_ASSIGN;
+                        case '*' -> Token.Kind.MUL_ASSIGN;
+                        case '/' -> Token.Kind.DIV_ASSIGN;
+                        case '%' -> Token.Kind.MOD_ASSIGN;
+                        case '=' -> Token.Kind.EQ;
+                        case '!' -> Token.Kind.NEQ;
+                        case '<' -> Token.Kind.LTE;
+                        case '>' -> Token.Kind.GTE;
                         default -> null;
                     };
 
@@ -213,25 +211,25 @@ public final class Lexer {
                 }
 
                 var op = switch (next) {
-                    case '=' -> TokenKind.ASSIGN;
+                    case '=' -> Token.Kind.ASSIGN;
 
-                    case '+' -> TokenKind.PLUS;
-                    case '-' -> TokenKind.MINUS;
-                    case '*' -> TokenKind.STAR;
-                    case '/' -> TokenKind.SLASH;
-                    case '%' -> TokenKind.MODULO;
-                    case '&' -> TokenKind.REF;
+                    case '+' -> Token.Kind.PLUS;
+                    case '-' -> Token.Kind.MINUS;
+                    case '*' -> Token.Kind.STAR;
+                    case '/' -> Token.Kind.SLASH;
+                    case '%' -> Token.Kind.MODULO;
+                    case '&' -> Token.Kind.REF;
                     
-                    case '<' -> TokenKind.LT;
-                    case '>' -> TokenKind.GT;
+                    case '<' -> Token.Kind.LT;
+                    case '>' -> Token.Kind.GT;
 
-                    case '?' -> TokenKind.QMARK;
+                    case '?' -> Token.Kind.QMARK;
 
-                    case ',' -> TokenKind.COMMA;
-                    case '(' -> TokenKind.PAREN_OPEN;
-                    case ')' -> TokenKind.PAREN_CLOSE;
-                    case '[' -> TokenKind.BRACKET_OPEN;
-                    case ']' -> TokenKind.BRACKET_CLOSE;
+                    case ',' -> Token.Kind.COMMA;
+                    case '(' -> Token.Kind.PAREN_OPEN;
+                    case ')' -> Token.Kind.PAREN_CLOSE;
+                    case '[' -> Token.Kind.BRACKET_OPEN;
+                    case ']' -> Token.Kind.BRACKET_CLOSE;
                     default -> throw new LangError(pos(), "invalid input while parsing");
                 };
 

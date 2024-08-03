@@ -53,11 +53,11 @@ public final class UserFunction implements Function {
                 throw new LangError(pos, String.format(format, callee.name(), returnType.name()));
             }
             return Value.makeUndefined();
-        } catch (ContinueEffect e) {
+        } catch (Continue.Effect e) {
             throw new LangError(e.pos(), "cannot continue outside of a loop");
-        } catch (BreakEffect e) {
+        } catch (Break.Effect e) {
             throw new LangError(e.pos(), "cannot break outside of a loop");
-        } catch (ReturnEffect e) {
+        } catch (Return.Effect e) {
             if (!e.value().type().eq(returnType)) {
                 var format = "function `%s` marks return as type %s, but actually returns type %s";
                 throw new LangError(e.pos(), String.format(format, callee.name(), returnType.name(), e.value().type().name()));

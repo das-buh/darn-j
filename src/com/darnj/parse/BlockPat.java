@@ -17,7 +17,7 @@ final class BlockPat implements Pattern<Op> {
         log.finer("parse block");
         
         var doToken = parser.peek();
-        parser.expect(TokenKind.DO, "expected block while parsing");
+        parser.expect(Token.Kind.DO, "expected block while parsing");
 
         var blockStart = parser.peekRaw();
         if (blockStart.line() == parser.line) {
@@ -42,7 +42,7 @@ final class BlockPat implements Pattern<Op> {
                 if (!newline.isDelim()) {
                     throw new LangError(newline.pos(), "expected new statement while parsing");
                 }
-                if (newline.kind() == TokenKind.INDENT && newline.indent() == parser.indent) {
+                if (newline.kind() == Token.Kind.INDENT && newline.indent() == parser.indent) {
                     parser.bump();
                     continue;
                 }

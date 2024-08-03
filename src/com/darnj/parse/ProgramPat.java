@@ -22,17 +22,17 @@ final class ProgramPat implements Pattern<Op> {
         var stmts = new ArrayList<Op>();
 
         while (true) {
-            if (parser.peek().kind() == TokenKind.EOF) {
-                parser.expect(TokenKind.EOF, "expected end of input while parsing");
+            if (parser.peek().kind() == Token.Kind.EOF) {
+                parser.expect(Token.Kind.EOF, "expected end of input while parsing");
                 return new Block(new Span(0, parser.src.length()), stmts);
             }
 
             switch (parser.peek().kind()) {
-                case TokenKind.FN -> {
+                case Token.Kind.FN -> {
                     parser.bump();
                     parseFunction(parser);
                 }
-                case TokenKind.INDENT -> {
+                case Token.Kind.INDENT -> {
                     parser.bump();
                 }
                 default -> {
@@ -52,10 +52,10 @@ final class ProgramPat implements Pattern<Op> {
         var funcName = parser.expectIdent();
         
         ArrayList<Param> params;
-        parser.expect(TokenKind.PAREN_OPEN, "expected opening parenthesis while parsing");
+        parser.expect(Token.Kind.PAREN_OPEN, "expected opening parenthesis while parsing");
         try (var indentHandler = parser.new IndentSensitivityHandler(false)) {
             params = switch (parser.peek().kind()) {
-                case TokenKind.PAREN_CLOSE -> {
+                case Token.Kind.PAREN_CLOSE -> {
                     parser.bump();
                     yield new ArrayList<>();
                 }
@@ -66,7 +66,7 @@ final class ProgramPat implements Pattern<Op> {
                         var paramType = parseType(p);
                         return new Param(paramPos, paramName, paramType);
                     });
-                    parser.expect(TokenKind.PAREN_CLOSE, "expected closing parenthesis while parsing");
+                    parser.expect(Token.Kind.PAREN_CLOSE, "expected closing parenthesis while parsing");
                     yield paramsList;
                 }
             };
@@ -84,7 +84,7 @@ final class ProgramPat implements Pattern<Op> {
         }
 
         var returnType = switch (parser.peek().kind()) {
-            case TokenKind.DO -> UndefinedType.instance();
+            case Token.Kind.DO -> UndefinedType.instance();
             default -> parseType(parser);
         };
 
@@ -102,35 +102,35 @@ final class ProgramPat implements Pattern<Op> {
         var peek = parser.peek();
         
         var type = switch (peek.kind()) {
-            case TokenKind.INT -> IntType.instance();
-            case TokenKind.FLOAT -> FloatType.instance();
-            case TokenKind.BOOL -> BoolType.instance();
-            case TokenKind.STR -> StrType.instance();
-            case TokenKind.LIST -> ListType.instance();
+            case Token.Kind.INT -> IntType.instance();
+            case Token.Kind.FLOAT -> FloatType.instance();
+            case Token.Kind.BOOL -> BoolType.instance();
+            case Token.Kind.STR -> StrType.instance();
+            case Token.Kind.LIST -> ListType.instance();
             default -> throw new LangError(peek.pos(), "expected type while parsing");
         };
         parser.bump();
 
         while (true) {
             var suffix = parser.peek();
-            var cons = switch (suffix.kind()) {
-                case TokenKind.QMARK -> {
+            var parsed = switch (suffix.kind()) {
+                case Token.Kind.QMARK -> {
                     var optional = type.optional();
-                    if (optional == null) {
+                    if (optional.isEmpty()) {
                         throw new LangError(suffix.pos(), "type cannot be doubly nil-able");
                     }
-                    yield optional;
+                    yield optional.get();
                 }
-                case TokenKind.STAR -> type.reference();
+                case Token.Kind.STAR -> type.reference();
                 default -> null;
             };
 
-            if (cons == null) {
+            if (parsed == null) {
                 return type;
             }
 
             parser.bump();
-            type = cons;
+            type = parsed;
         }
     }
 }

@@ -11,6 +11,13 @@ public final class Continue extends Op {
 
     @Override
     public Value eval(Context ctx) {
-        throw new ContinueEffect(pos);
+        throw new Effect(pos);
     }
+
+    public static class Effect extends ControlFlowEffect {
+        Effect(Span pos) {
+            super(pos);
+        }
+    }
+    
 }

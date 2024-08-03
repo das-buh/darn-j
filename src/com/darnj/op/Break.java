@@ -11,6 +11,13 @@ public final class Break extends Op {
 
     @Override
     public Value eval(Context ctx) {
-        throw new BreakEffect(pos);
+        throw new Effect(pos);
     }
+
+    public class Effect extends ControlFlowEffect {
+        Effect(Span pos) {
+            super(pos);
+        }
+    }
+    
 }

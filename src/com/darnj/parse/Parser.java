@@ -43,7 +43,7 @@ public final class Parser {
 
     void bump() {
         var bump = peek();
-        if (bump.kind() != TokenKind.INDENT) {
+        if (bump.kind() != Token.Kind.INDENT) {
             lexer.bump();
             pos = bump.pos().end();
             line = bump.line();
@@ -58,9 +58,9 @@ public final class Parser {
         if (inIndentMode &&
             peek.line() != line &&
             peek.indent() <= indent &&
-            peek.kind() != TokenKind.EOF
+            peek.kind() != Token.Kind.EOF
         ) {
-            return new Token(new Span(pos, pos), peek.indent(), peek.line(), TokenKind.INDENT);
+            return new Token(new Span(pos, pos), peek.indent(), peek.line(), Token.Kind.INDENT);
         }
 
         return peek;
@@ -77,7 +77,7 @@ public final class Parser {
         return lexer.peek();
     }
 
-    void expect(TokenKind kind, String message) {
+    void expect(Token.Kind kind, String message) {
         var peek = peek();
         if (peek.kind() != kind) {
             throw new LangError(peek.pos(), message);
@@ -87,7 +87,7 @@ public final class Parser {
 
     int expectIdent() {
         var peek = peek();
-        if (peek.kind() != TokenKind.IDENT) {
+        if (peek.kind() != Token.Kind.IDENT) {
             throw new LangError(peek.pos(), "expected identifier while parsing");
         }
         bump();
@@ -103,7 +103,7 @@ public final class Parser {
             var elem = pattern.parse(this);
             items.add(elem);
 
-            if (peek().kind() != TokenKind.COMMA) {
+            if (peek().kind() != Token.Kind.COMMA) {
                 return items;
             }
 

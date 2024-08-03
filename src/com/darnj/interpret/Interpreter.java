@@ -25,11 +25,11 @@ public final class Interpreter {
     void parseAndEval() {
         try {
             Parser.parse(src, ctx).eval(ctx);
-        } catch (ContinueEffect e) {
+        } catch (Continue.Effect e) {
             throw new LangError(e.pos(), "cannot continue outside of a loop");
-        } catch (BreakEffect e) {
+        } catch (Break.Effect e) {
             throw new LangError(e.pos(), "cannot break outside of a loop");
-        } catch (ReturnEffect e) {
+        } catch (Return.Effect e) {
             throw new LangError(e.pos(), "cannot return outside of a function");
         }
     }

@@ -19,9 +19,9 @@ public final class While extends Op {
         while (cond.eval(ctx).inner instanceof BoolValue c && c.value()) {
             try {
                 body.eval(ctx);
-            } catch (ContinueEffect _) {
+            } catch (Continue.Effect _) {
                 continue;
-            } catch (BreakEffect _) {
+            } catch (Break.Effect _) {
                 break;
             }
         } 

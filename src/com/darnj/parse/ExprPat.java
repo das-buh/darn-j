@@ -30,13 +30,13 @@ final class ExprPat implements Pattern<Op> {
 
         var peek = parser.peek();
         return switch (peek.kind()) {
-            case TokenKind.IF -> {
+            case Token.Kind.IF -> {
                 parser.bump();
                 var cond = ExprPat.instance.parse(parser);
                 var ifBranch = BlockPat.instance.parse(parser);
 
                 var peekElse = parser.peekRaw();
-                if (peekElse.kind() == TokenKind.ELSE && peekElse.indent() >= parser.indent) {
+                if (peekElse.kind() == Token.Kind.ELSE && peekElse.indent() >= parser.indent) {
                     parser.bumpRaw();
                     var elseBranch = ExprPat.instance.parse(parser);
                     yield new IfElse(peek.pos().to(elseBranch.pos()), cond, ifBranch, elseBranch);
@@ -44,7 +44,7 @@ final class ExprPat implements Pattern<Op> {
 
                 throw new LangError(peekElse.pos(), "expected else branch while parsing");
             }
-            case TokenKind.DO -> BlockPat.instance.parse(parser);
+            case Token.Kind.DO -> BlockPat.instance.parse(parser);
             default -> OrPat.instance.parse(parser);
         };
     }
@@ -54,7 +54,7 @@ abstract class InfixPat implements Pattern<Op> {
     abstract Pattern<Op> operand();
     
     // Returns null if no operator is matched.
-    abstract BinaryOp match(TokenKind op);
+    abstract BinaryOp match(Token.Kind op);
 
     @Override
     public Op parse(Parser parser) {
@@ -79,7 +79,7 @@ abstract class PrefixPat implements Pattern<Op> {
     abstract Pattern<Op> fallback();
     
     // Returns null if no operator is matched.
-    abstract UnaryOp match(TokenKind op);
+    abstract UnaryOp match(Token.Kind op);
 
     @Override
     public Op parse(Parser parser) {
@@ -106,9 +106,9 @@ final class OrPat extends InfixPat {
     }
 
     @Override
-    BinaryOp match(TokenKind op) {
+    BinaryOp match(Token.Kind op) {
         return switch (op) {
-            case TokenKind.OR -> new Or();
+            case Token.Kind.OR -> new Or();
             default -> null;
         };
     }
@@ -123,9 +123,9 @@ final class AndPat extends InfixPat {
     }
 
     @Override
-    BinaryOp match(TokenKind op) {
+    BinaryOp match(Token.Kind op) {
         return switch (op) {
-            case TokenKind.AND -> new And();
+            case Token.Kind.AND -> new And();
             default -> null;
         };
     }
@@ -140,9 +140,9 @@ final class NotPat extends PrefixPat {
     }
 
     @Override
-    UnaryOp match(TokenKind op) {
+    UnaryOp match(Token.Kind op) {
         return switch (op) {
-            case TokenKind.NOT -> new Not();
+            case Token.Kind.NOT -> new Not();
             default -> null;
         };
     }
@@ -157,14 +157,14 @@ final class ComparePat extends InfixPat {
     }
 
     @Override
-    BinaryOp match(TokenKind op) {
+    BinaryOp match(Token.Kind op) {
         return switch (op) {
-            case TokenKind.EQ -> new Eq();
-            case TokenKind.NEQ -> new Neq();
-            case TokenKind.LT -> new Lt();
-            case TokenKind.LTE -> new Lte();
-            case TokenKind.GT -> new Gt();
-            case TokenKind.GTE -> new Gte();
+            case Token.Kind.EQ -> new Eq();
+            case Token.Kind.NEQ -> new Neq();
+            case Token.Kind.LT -> new Lt();
+            case Token.Kind.LTE -> new Lte();
+            case Token.Kind.GT -> new Gt();
+            case Token.Kind.GTE -> new Gte();
             default -> null;
         };
     }
@@ -179,10 +179,10 @@ final class SumPat extends InfixPat {
     }
 
     @Override
-    BinaryOp match(TokenKind op) {
+    BinaryOp match(Token.Kind op) {
         return switch (op) {
-            case TokenKind.PLUS -> new Add();
-            case TokenKind.MINUS -> new Sub();
+            case Token.Kind.PLUS -> new Add();
+            case Token.Kind.MINUS -> new Sub();
             default -> null;
         };
     }
@@ -197,11 +197,11 @@ final class ProductPat extends InfixPat {
     }
 
     @Override
-    BinaryOp match(TokenKind op) {
+    BinaryOp match(Token.Kind op) {
         return switch (op) {
-            case TokenKind.STAR -> new Mul();
-            case TokenKind.SLASH -> new Div();
-            case TokenKind.MODULO -> new Mod();
+            case Token.Kind.STAR -> new Mul();
+            case Token.Kind.SLASH -> new Div();
+            case Token.Kind.MODULO -> new Mod();
             default -> null;
         };
     }
@@ -216,11 +216,11 @@ final class MiscPrefixPat extends PrefixPat {
     }
 
     @Override
-    UnaryOp match(TokenKind op) {
+    UnaryOp match(Token.Kind op) {
         return switch (op) {
-            case TokenKind.MINUS -> new Neg();
-            case TokenKind.STAR -> new Deref();
-            case TokenKind.REF -> new Ref();
+            case Token.Kind.MINUS -> new Neg();
+            case Token.Kind.STAR -> new Deref();
+            case Token.Kind.REF -> new Ref();
             default -> null;
         };
     }

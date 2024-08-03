@@ -1,5 +1,7 @@
 package com.darnj.type;
 
+import java.util.Optional;
+
 public abstract sealed class Type
     permits IntType, FloatType, BoolType, StrType, NilType, OptionalType, ReferenceType, ListType, UndefinedType
 {
@@ -7,20 +9,21 @@ public abstract sealed class Type
 
     public abstract boolean eq(Type other);
 
-    Type optional;
+    Optional<Type> optional;
     Type reference;
 
-    // Returns null if already optional.
-    public Type optional() {
+    // Returns Optional.empty if already optional.
+    public Optional<Type> optional() {
         if (optional != null) {
             return optional;
         }
 
-        if (optional instanceof OptionalType) {
-            return null;
+        if (this instanceof OptionalType) {
+            optional = Optional.empty();
+            return optional;
         }
 
-        optional = new OptionalType(this);
+        optional = Optional.of(new OptionalType(this));
         return optional;
     }
 

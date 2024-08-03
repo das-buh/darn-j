@@ -19,8 +19,8 @@ final class AtomPat implements Pattern<Op> {
         var peek = parser.peek();
         var pos = peek.pos();
         return switch (peek.kind()) {
-            case TokenKind.IDENT -> parseVarOrCall(parser);
-            case TokenKind.INT_LITERAL -> {
+            case Token.Kind.IDENT -> parseVarOrCall(parser);
+            case Token.Kind.INT_LITERAL -> {
                 parser.bump();
                 try {
                     var lit = parser.src.substring(pos.start(), pos.end());
@@ -29,7 +29,7 @@ final class AtomPat implements Pattern<Op> {
                     throw new LangError(pos, "invalid integer literal");
                 }
             }
-            case TokenKind.FLOAT_LITERAL -> {
+            case Token.Kind.FLOAT_LITERAL -> {
                 parser.bump();
                 try {
                     var lit = parser.src.substring(pos.start(), pos.end());
@@ -38,24 +38,24 @@ final class AtomPat implements Pattern<Op> {
                     throw new LangError(pos, "invalid float literal");
                 }
             }
-            case TokenKind.STR_LITERAL -> {
+            case Token.Kind.STR_LITERAL -> {
                 parser.bump();
                 yield new StrConstant(pos, parser.src.substring(pos.start() + 1, pos.end() - 1));
             }
-            case TokenKind.TRUE -> {
+            case Token.Kind.TRUE -> {
                 parser.bump();
                 yield new True(pos);
             }
-            case TokenKind.FALSE -> {
+            case Token.Kind.FALSE -> {
                 parser.bump();
                 yield new False(pos);
             }
-            case TokenKind.NIL -> {
+            case Token.Kind.NIL -> {
                 parser.bump();
                 yield new Nil(pos);
             }
-            case TokenKind.PAREN_OPEN -> parseParentheses(parser);
-            case TokenKind.BRACKET_OPEN -> parseList(parser);
+            case Token.Kind.PAREN_OPEN -> parseParentheses(parser);
+            case Token.Kind.BRACKET_OPEN -> parseList(parser);
             default -> throw new LangError(peek.pos(), "expected expression while parsing");
         };
     }
@@ -67,19 +67,19 @@ final class AtomPat implements Pattern<Op> {
         var src = parser.src.substring(variable.pos().start(), variable.pos().end());
         var id = parser.ctx.symbols().intern(src);
 
-        if (parser.peek().kind() == TokenKind.PAREN_OPEN) {
+        if (parser.peek().kind() == Token.Kind.PAREN_OPEN) {
             parser.bump();
             
             try (var indentHandler = parser.new IndentSensitivityHandler(false)) {
                 var closeZero = parser.peek();
-                if (closeZero.kind() == TokenKind.PAREN_CLOSE) {
+                if (closeZero.kind() == Token.Kind.PAREN_CLOSE) {
                     parser.bump();
                     return new Call(variable.pos().to(closeZero.pos()), variable.pos(), id, new ArrayList<>());
                 }
 
                 var elems = parser.commaSeparated(ExprPat.instance);
                 var close = parser.peek().pos();
-                parser.expect(TokenKind.PAREN_CLOSE, "expected closing parenthesis while parsing");
+                parser.expect(Token.Kind.PAREN_CLOSE, "expected closing parenthesis while parsing");
 
                 return new Call(variable.pos().to(close), variable.pos(), id, elems);
             }
@@ -95,7 +95,7 @@ final class AtomPat implements Pattern<Op> {
         try (var indentHandler = parser.new IndentSensitivityHandler(false)) {
             var inner = ExprPat.instance.parse(parser);
             var close = parser.peek().pos();
-            parser.expect(TokenKind.PAREN_CLOSE, "expected closing parenthesis while parsing");
+            parser.expect(Token.Kind.PAREN_CLOSE, "expected closing parenthesis while parsing");
             return new Identity(open.pos().to(close), inner);
         }
     }
@@ -106,14 +106,14 @@ final class AtomPat implements Pattern<Op> {
 
         try (var indentHandler = parser.new IndentSensitivityHandler(false)) {
             var closeZero = parser.peek();
-            if (closeZero.kind() == TokenKind.BRACKET_CLOSE) {
+            if (closeZero.kind() == Token.Kind.BRACKET_CLOSE) {
                 parser.bump();
                 return new List(open.pos().to(closeZero.pos()), new ArrayList<>());
             }
 
             var elems = parser.commaSeparated(ExprPat.instance);
             var close = parser.peek().pos();
-            parser.expect(TokenKind.BRACKET_CLOSE, "expected closing bracket while parsing");
+            parser.expect(Token.Kind.BRACKET_CLOSE, "expected closing bracket while parsing");
 
             return new List(open.pos().to(close), elems);
         }

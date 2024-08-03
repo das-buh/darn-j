@@ -16,54 +16,54 @@ final class StmtPat implements Pattern<Op> {
 
         var peek = parser.peek();
         return switch (peek.kind()) {
-            case TokenKind.IF -> {
+            case Token.Kind.IF -> {
                 parser.bump();
                 var cond = ExprPat.instance.parse(parser);
                 var ifBranch = BlockPat.instance.parse(parser);
 
                 var peekElse = parser.peekRaw();
-                if (peekElse.kind() == TokenKind.ELSE && peekElse.indent() >= parser.indent) {
+                if (peekElse.kind() == Token.Kind.ELSE && peekElse.indent() >= parser.indent) {
                     parser.bumpRaw();
                     var elseBranch = ExprPat.instance.parse(parser);
                     yield new IfElse(peek.pos().to(elseBranch.pos()), cond, ifBranch, elseBranch);
                 }
 
-                yield new IfElse(peek.pos().to(ifBranch.pos()), cond, ifBranch, null);
+                yield new IfElse(peek.pos().to(ifBranch.pos()), cond, ifBranch);
             }
-            case TokenKind.WHILE -> {
+            case Token.Kind.WHILE -> {
                 parser.bump();
                 var cond = ExprPat.instance.parse(parser);
                 var body = BlockPat.instance.parse(parser);
                 yield new While(peek.pos().to(body.pos()), cond, body);
             }
-            case TokenKind.CONTINUE -> {
+            case Token.Kind.CONTINUE -> {
                 parser.bump();
                 yield new Continue(peek.pos());
             }
-            case TokenKind.BREAK -> {
+            case Token.Kind.BREAK -> {
                 parser.bump();
                 yield new Break(peek.pos());
             }
-            case TokenKind.RETURN -> {
+            case Token.Kind.RETURN -> {
                 parser.bump();
 
-                if (parser.peek().kind() != TokenKind.INDENT) {
+                if (!parser.peek().isDelim()) {
                     var value = ExprPat.instance.parse(parser);
                     yield new Return(peek.pos().to(value.pos()), value);
                 }
 
-                yield new Return(peek.pos(), null);
+                yield new Return(peek.pos());
             }
             default -> {
                 var expr = ExprPat.instance.parse(parser);
 
                 var assign = switch (parser.peek().kind()) {
-                    case TokenKind.ASSIGN -> new Assign();
-                    case TokenKind.ADD_ASSIGN -> new AddAssign();
-                    case TokenKind.SUB_ASSIGN -> new SubAssign();
-                    case TokenKind.MUL_ASSIGN -> new MulAssign();
-                    case TokenKind.DIV_ASSIGN -> new DivAssign();
-                    case TokenKind.MOD_ASSIGN -> new ModAssign();
+                    case Token.Kind.ASSIGN -> new Assign();
+                    case Token.Kind.ADD_ASSIGN -> new AddAssign();
+                    case Token.Kind.SUB_ASSIGN -> new SubAssign();
+                    case Token.Kind.MUL_ASSIGN -> new MulAssign();
+                    case Token.Kind.DIV_ASSIGN -> new DivAssign();
+                    case Token.Kind.MOD_ASSIGN -> new ModAssign();
                     default -> null;
                 };
 
