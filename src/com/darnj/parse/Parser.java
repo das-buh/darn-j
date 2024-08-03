@@ -12,16 +12,16 @@ import com.darnj.op.*;
 public final class Parser {
     private static Logger log = Logger.getGlobal();
 
-    String src;
+    final String src;
 
-    Lexer lexer;
+    final Lexer lexer;
 
     int pos;
     int indent;
     int line;
-    boolean inIndentSensitiveMode;
+    boolean inIndentMode;
 
-    Context ctx;
+    final Context ctx;
 
     Parser(String src, Context ctx) {
         this.src = src;
@@ -29,7 +29,7 @@ public final class Parser {
         pos = 0;
         indent = 0;
         line = 0;
-        inIndentSensitiveMode = true;
+        inIndentMode = true;
         this.ctx = ctx;
     }
 
@@ -55,7 +55,7 @@ public final class Parser {
     Token peek() {
         var peek = lexer.peek();
         
-        if (inIndentSensitiveMode &&
+        if (inIndentMode &&
             peek.line() != line &&
             peek.indent() <= indent &&
             peek.kind() != TokenKind.EOF
@@ -99,12 +99,26 @@ public final class Parser {
         return pattern.parse(this);
     }
 
-    Op withIndentSensitivity(boolean sensitivity, Pattern pattern) {
-        var prev = inIndentSensitiveMode;
-        inIndentSensitiveMode = sensitivity;
-        var op = pattern(pattern);
-        inIndentSensitiveMode = prev;
-        return op;
+    // Op withIndentSensitivity(boolean sensitivity, Pattern pattern) {
+    //     var prev = inIndentMode;
+    //     inIndentMode = sensitivity;
+    //     var op = pattern(pattern);
+    //     inIndentMode = prev;
+    //     return op;
+    // }
+
+    protected class IndentSensitivityHandler implements AutoCloseable {
+        private boolean oldIndentMode;
+
+        protected IndentSensitivityHandler(boolean newIndentMode) {
+            oldIndentMode = inIndentMode;
+            inIndentMode = newIndentMode;
+        }
+
+        @Override
+        public void close() {
+            inIndentMode = oldIndentMode;
+        }
     }
 
     // Expects one or more comma-separated patterns.

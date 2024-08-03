@@ -31,17 +31,17 @@ final class BlockPat implements Pattern {
         parser.indent = peek.indent();
         parser.line = peek.line();
 
-        var block = parser.withIndentSensitivity(true, pInner -> {
+        try (var indentHandler = parser.new IndentSensitivityHandler(true)) {
             var stmts = new ArrayList<Op>();
             
             while (true) {
-                var cont = switch (pInner.peek().kind()) {
+                var cont = switch (parser.peek().kind()) {
                     case TokenKind.INDENT -> {
-                        yield pInner.peek().indent() == parser.indent;
+                        yield parser.peek().indent() == parser.indent;
                     }
                     case TokenKind.EOF -> false;
                     default -> {
-                        var stmt = pInner.pattern(StmtPat.instance);
+                        var stmt = parser.pattern(StmtPat.instance);
                         stmts.add(stmt);
 
                         var newline = parser.peek();
@@ -62,11 +62,9 @@ final class BlockPat implements Pattern {
                     continue;
                 }
 
+                parser.indent = indentOld;
                 return new Block(peekDo.pos().to(stmts.getLast().pos()), stmts);
             }
-        });
-
-        parser.indent = indentOld;
-        return block;
+        }
     }
 }

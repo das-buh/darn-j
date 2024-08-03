@@ -62,44 +62,41 @@ final class ProgramPat implements Pattern {
         var params = new ArrayList<Param>();
 
         parser.expect(TokenKind.PAREN_OPEN, "expected opening parenthesis while parsing");
-        parser.withIndentSensitivity(false, pInner -> {
-            if (pInner.peek().kind() == TokenKind.PAREN_CLOSE) {
-                pInner.bump();
-                return null;
-            }
-
-            while (true) {
-                var paramPos = pInner.peek().pos();
-                var param = pInner.expectIdent();
-
-                if (params.stream().anyMatch(p -> p.ident() == param)) {
-                    var format = "parameter `%s` is already defined";
-                    throw new LangError(paramPos, String.format(format, pInner.ctx.symbols().resolve(param)));
-                }
-
-                var type = parseType(pInner);
-                params.add(new Param(param, type));
+        try (var indentHandler = parser.new IndentSensitivityHandler(false)) {
+            if (parser.peek().kind() == TokenKind.PAREN_CLOSE) {
+                parser.bump();
+            } else {
+                while (true) {
+                    var paramPos = parser.peek().pos();
+                    var param = parser.expectIdent();
     
-                var delim = pInner.peek();
-                var term = switch (delim.kind()) {
-                    case TokenKind.COMMA -> {
-                        pInner.bump();
-                        yield false;
+                    if (params.stream().anyMatch(p -> p.ident() == param)) {
+                        var format = "parameter `%s` is already defined";
+                        throw new LangError(paramPos, String.format(format, parser.ctx.symbols().resolve(param)));
                     }
-                    case TokenKind.PAREN_CLOSE -> {
-                        pInner.bump();
-                        yield true;
+    
+                    var type = parseType(parser);
+                    params.add(new Param(param, type));
+        
+                    var delim = parser.peek();
+                    var term = switch (delim.kind()) {
+                        case TokenKind.COMMA -> {
+                            parser.bump();
+                            yield false;
+                        }
+                        case TokenKind.PAREN_CLOSE -> {
+                            parser.bump();
+                            yield true;
+                        }
+                        default -> throw new LangError(delim.pos(), "expected closing parenthesis while parsing");
+                    };
+    
+                    if (term) {
+                        break;
                     }
-                    default -> throw new LangError(delim.pos(), "expected closing parenthesis while parsing");
-                };
-
-                if (term) {
-                    break;
                 }
             }
-
-            return null;
-        });
+        }
 
         var returnType = switch (parser.peek().kind()) {
             case TokenKind.DO -> UndefinedType.instance();

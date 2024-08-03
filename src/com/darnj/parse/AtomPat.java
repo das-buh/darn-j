@@ -26,19 +26,19 @@ final class AtomPat implements Pattern {
                 if (parser.peek().kind() == TokenKind.PAREN_OPEN) {
                     parser.bump();
                     
-                    yield parser.withIndentSensitivity(false, pInner -> {
-                        var nil = pInner.peek();
+                    try (var indentHandler = parser.new IndentSensitivityHandler(false)) {
+                        var nil = parser.peek();
                         if (nil.kind() == TokenKind.PAREN_CLOSE) {
-                            pInner.bump();
-                            return new Call(peek.pos().to(nil.pos()), peek.pos(), id, new ArrayList<>());
+                            parser.bump();
+                            yield new Call(peek.pos().to(nil.pos()), peek.pos(), id, new ArrayList<>());
                         }
     
-                        var elems = pInner.commaSeparated(ExprPat.instance);
-                        var close = pInner.peek().pos();
-                        pInner.expect(TokenKind.PAREN_CLOSE, "expected closing parenthesis while parsing");
+                        var elems = parser.commaSeparated(ExprPat.instance);
+                        var close = parser.peek().pos();
+                        parser.expect(TokenKind.PAREN_CLOSE, "expected closing parenthesis while parsing");
     
-                        return new Call(peek.pos().to(close), peek.pos(), id, elems);
-                    });
+                        yield new Call(peek.pos().to(close), peek.pos(), id, elems);
+                    }
                 }
 
                 yield new Variable(pos, id);
@@ -79,28 +79,29 @@ final class AtomPat implements Pattern {
             }
             case TokenKind.PAREN_OPEN -> {
                 parser.bump();
-                yield parser.withIndentSensitivity(false, pInner -> {
-                    var inner = pInner.pattern(ExprPat.instance);
-                    var close = pInner.peek().pos();
-                    pInner.expect(TokenKind.PAREN_CLOSE, "expected closing parenthesis while parsing");
-                    return new Identity(pos.to(close), inner);
-                });
+                try (var indentHandler = parser.new IndentSensitivityHandler(false)) {
+                    var inner = parser.pattern(ExprPat.instance);
+                    var close = parser.peek().pos();
+                    parser.expect(TokenKind.PAREN_CLOSE, "expected closing parenthesis while parsing");
+                    yield new Identity(pos.to(close), inner);
+                }
             }
             case TokenKind.BRACKET_OPEN -> {
                 parser.bump();
-                yield parser.withIndentSensitivity(false, pInner -> {
-                    var nil = pInner.peek();
+
+                try (var indentHandler = parser.new IndentSensitivityHandler(false)) {
+                    var nil = parser.peek();
                     if (nil.kind() == TokenKind.BRACKET_CLOSE) {
-                        pInner.bump();
-                        return new List(pos.to(nil.pos()), new ArrayList<>());
+                        parser.bump();
+                        yield new List(pos.to(nil.pos()), new ArrayList<>());
                     }
 
-                    var elems = pInner.commaSeparated(ExprPat.instance);
-                    var close = pInner.peek().pos();
-                    pInner.expect(TokenKind.BRACKET_CLOSE, "expected closing bracket while parsing");
+                    var elems = parser.commaSeparated(ExprPat.instance);
+                    var close = parser.peek().pos();
+                    parser.expect(TokenKind.BRACKET_CLOSE, "expected closing bracket while parsing");
 
-                    return new List(pos.to(close), elems);
-                });
+                    yield new List(pos.to(close), elems);
+                }
             }
             default -> throw new LangError(peek.pos(), "expected expression while parsing");
         };
